@@ -1,34 +1,29 @@
-import { useEffect, useState } from "react"
-import type { IProduct } from "../../types/product"
-import { getProducts } from "../../services/productService"
+import { useEffect, useState } from 'react';
+import type { IProduct } from '../../types/product.type';
+import { getProducts } from '../../services/product.service';
 
-export const ProductsPage = () => {
+const ProductsPage = () => {
+	const [products, setProducts] = useState<IProduct[]>([]);
 
-    const [products, setProducts] = useState<IProduct[]>([])
+	useEffect(() => {
+		loadProducts();
+	}, []);
 
-    useEffect(()=>{
-        loadProducts()
-    },[])
+	const loadProducts = async () => {
+		const data = await getProducts();
+		if (data) setProducts(data);
+	};
+	return (
+		<div>
+			<h1>Productos</h1>
 
-    const loadProducts = async () => {
-        const data = await getProducts()
-        setProducts(data)
-    }
-  return (
-   <div>
+			{products.map((p) => (
+				<div key={p._id} className='text-[#fff]'>
+					{p.name} - ${p.price}
+				</div>
+			))}
+		</div>
+	);
+};
 
-      <h1>Productos</h1>
-
-      {products.map((p) => (
-
-        <div key={p.id}>
-
-          {p.name} - ${p.price}
-
-        </div>
-
-      ))}
-
-    </div>
-  )
-}
+export default ProductsPage;
