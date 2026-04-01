@@ -3,12 +3,16 @@ import { handleApiError } from '../api/errors';
 import type {
 	ICreateProductPayload,
 	IProduct,
+	IProductResponse,
 	TUpdateProductPayload,
 } from '../types/product.type';
 
-export const getProducts = async (): Promise<IProduct[]> => {
+export const getProducts = async (params: {
+	page?: number;
+	limit?: number;
+}): Promise<IProductResponse> => {
 	try {
-		const { data } = await api.get<IProduct[]>('/products');
+		const { data } = await api.get<IProductResponse>('/products', { params });
 
 		return data;
 	} catch (error) {

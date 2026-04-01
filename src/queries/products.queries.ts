@@ -16,7 +16,7 @@ import type {
 export const useGetProducts = () =>
 	useQuery({
 		queryKey: queryKeys.products.all(),
-		queryFn: getProducts,
+		queryFn: () => getProducts({}),
 	});
 
 export const useGetProductById = (id: string) =>

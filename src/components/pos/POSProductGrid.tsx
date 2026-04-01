@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePOSStore } from '../../store/usePOSStore';
 import { POSSearch } from './POSSearch';
 import { SkeletonGrid } from './SkeletonGrid';
@@ -9,6 +9,7 @@ import {
 	useProductSearch,
 } from '../../queries/products.queries';
 import { useDebounce } from '../../hooks/useDebounce';
+import type { IProduct, IProductResponse } from '../../types/product.type';
 
 export const POSProductGrid = () => {
 	const [query, setQuery] = useState('');
@@ -19,11 +20,19 @@ export const POSProductGrid = () => {
 	const allProducts = useGetProducts();
 	const searchResults = useProductSearch(debounceQuery);
 
-	const {
-		data: products = [],
-		isLoading,
-		isError,
-	} = isSearching ? searchResults : allProducts;
+	const [products, setProducts] = useState<IProduct[]>([]);
+
+	const { data, isLoading, isError } = isSearching
+		? searchResults
+		: allProducts;
+
+	useEffect(() => {
+		if (isSearching) {
+			setProducts((data as IProduct[]) ?? []);
+		} else {
+			setProducts((data as IProductResponse)?.data ?? []);
+		}
+	}, [data]);
 
 	return (
 		<div className='flex flex-col flex-1 bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>

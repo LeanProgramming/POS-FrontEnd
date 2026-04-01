@@ -10,6 +10,14 @@ export interface IProduct {
 	isActive?: boolean;
 }
 
+export interface IProductResponse {
+	data: IProduct[];
+	total: number;
+	page: number;
+	limit: number;
+	pages: number;
+}
+
 export interface ICreateProductPayload {
 	name: string;
 	sku: string;
