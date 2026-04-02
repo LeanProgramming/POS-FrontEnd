@@ -25,7 +25,7 @@ export const POSTopbar = ({ user, cashStatus, onLogout }: IPOSTopbarProps) => {
 				<span className='text-[11px] font-mono text-[#444] px-2 py-0.5 bg-[#1a1a1a] border border-[#252525] rounded'>
 					{now}
 				</span>
-				{cashStatus?.isOpen && (
+				{cashStatus?.is_open && (
 					<span className='text-[11px] font-mono text-green-600 px-2 py-0.5 bg-[#0f1f12] border border-green-900 rounded'>
 						Caja abierta
 					</span>

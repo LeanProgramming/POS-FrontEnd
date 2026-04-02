@@ -37,11 +37,11 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 	};
 
 	const totalIngresos = movements
-		.filter((m) => m.type === 'income')
+		.filter((m) => m.type === 'cash_in')
 		.reduce((acc, m) => acc + m.amount, 0);
 
 	const totalEgresos = movements
-		.filter((m) => m.type === 'outcome')
+		.filter((m) => m.type === 'cash_out')
 		.reduce((acc, m) => acc + m.amount, 0);
 	return (
 		<div className='flex flex-col gap-6'>
