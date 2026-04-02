@@ -22,6 +22,7 @@ export interface IPayment {
 export interface ICreateSalePayload {
 	items: ISaleItem[];
 	payment_methods: IPayment[];
+	session_id: string;
 }
 
 export interface ISale {

@@ -6,38 +6,42 @@ import {
 	type ChangeEvent,
 	type SyntheticEvent,
 } from 'react';
-import {
-	UserRole,
-	type ILoginCredentials,
-	type TUserRole,
-} from '../../types/auth.type';
+import { type ILoginCredentials } from '../../types/auth.type';
 import { useLogin } from '../../queries/auth.queries';
-
-const ROLES = [
-	{ value: 'cashier', label: 'Cajero', icon: '🧾' },
-	{ value: 'admin', label: 'Admin', icon: '⚙️' },
-] as const;
+import { useGetCashRegisters } from '../../queries/cash.queries';
+import type { ICashRegister } from '../../types/cash.type';
+import { useCashStore } from '../../store/useCashStore.';
 
 export const LoginPage = () => {
 	const navigate = useNavigate();
 	const { user, setAuth } = useAuthStore();
+	const { setCashRegister } = useCashStore();
 
 	const [credentials, setCredentials] = useState<ILoginCredentials>({
 		username: '',
 		password: '',
 	});
-	const [selectedRole, setSelectedRole] = useState<TUserRole>(UserRole.CASHIER);
 	const login = useLogin();
 	const [error, setError] = useState<string | null>(null);
+
+	const { data: cashRegisters = [] } = useGetCashRegisters();
+	const [selectedCashReg, setSelectedCashReg] = useState<ICashRegister>(
+		cashRegisters[0],
+	);
+
+	useEffect(() => {
+		if (cashRegisters && cashRegisters.length > 0)
+			setSelectedCashReg(cashRegisters[0]);
+	}, [cashRegisters]);
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setError(null);
 		setCredentials((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 	};
 
-	const handleRoleSelect = (role: TUserRole) => {
-		setSelectedRole(role);
-		setCredentials((prev) => ({ ...prev, username: role }));
+	const handleSelectCashRegister = (registerId: string) => {
+		const cashRegister = cashRegisters.find((cr) => cr._id === registerId);
+		if (cashRegister) setSelectedCashReg(cashRegister);
 	};
 
 	const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
@@ -46,10 +50,19 @@ export const LoginPage = () => {
 			setError('Debe ingresar usuario y contraseña');
 			return;
 		}
+		if (!selectedCashReg) {
+			setError('Debe seleccionar una caja registradora');
+			return;
+		}
 		setError(null);
 
 		try {
-			login.mutate(credentials, { onSuccess: (data) => setAuth(data) });
+			login.mutate(credentials, {
+				onSuccess: (data) => {
+					setAuth(data);
+					setCashRegister(selectedCashReg);
+				},
+			});
 		} catch {
 			setError('Credenciales incorrectas. Intentá de nuevo.');
 		}
@@ -162,32 +175,38 @@ export const LoginPage = () => {
 						</button>
 					</form>
 
-					{/* Acceso rápido por rol */}
+					{/* Seleccion de cajas */}
 					<div className='mt-6 pt-5 border-t border-[#1e1e1e]'>
 						<p className='text-[11px] font-mono text-[#444] mb-2'>
-							Acceso rápido por rol
+							Seleccion de cajas
 						</p>
 						<div className='grid grid-cols-2 gap-2'>
-							{ROLES.map((role) => (
+							{cashRegisters.map((register) => (
 								<button
-									key={role.value}
+									key={register._id}
 									type='button'
-									onClick={() => handleRoleSelect(role.value as TUserRole)}
+									onClick={() => handleSelectCashRegister(register._id)}
 									className={`py-2 rounded-md border text-center transition-all ${
-										selectedRole === role.value
+										selectedCashReg?._id === register._id
 											? 'border-green-500 bg-[#0f1f12]'
 											: 'border-[#252525] bg-[#141414] hover:border-[#444]'
 									}`}
 								>
-									<span className='block text-base mb-0.5'>{role.icon}</span>
+									<span className='block text-white mb-0.5'>
+										{register.name
+											.split(' ')
+											.map((el) => el.slice(0, 2))
+											.join('')
+											.toUpperCase()}
+									</span>
 									<span
 										className={`text-[11px] font-mono ${
-											selectedRole === role.value
+											selectedCashReg?._id === register._id
 												? 'text-green-500'
 												: 'text-[#666]'
 										}`}
 									>
-										{role.label}
+										{register.name}
 									</span>
 								</button>
 							))}

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { usePOSStore } from '../../store/usePOSStore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { POSTopbar } from '../../components/pos/POSTopbar';
 import { POSProductGrid } from '../../components/pos/POSProductGrid';
 import { POSCart } from '../../components/pos/POSCart';
@@ -10,11 +10,13 @@ import { POSSuccessModal } from '../../components/pos/POSSuccessModal';
 import { useGetCashStatus } from '../../queries/cash.queries';
 import { useCreateSale } from '../../queries/sales.queries';
 import { getErrorMessage } from '../../api/errors';
+import { useCashStore } from '../../store/useCashStore.';
 
 export const POSPage = () => {
 	const navigate = useNavigate();
 	const { user, logout } = useAuthStore();
 	const { items, payments, total } = usePOSStore();
+	const { sessionId, setSessionId } = useCashStore();
 
 	const [showPaymentModal, setShowPaymentModal] = useState(false);
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -23,16 +25,24 @@ export const POSPage = () => {
 	const { data: cashStatus } = useGetCashStatus();
 	const createSale = useCreateSale();
 
+	useEffect(() => {
+		if (!cashStatus) return;
+
+		if (cashStatus.session && !sessionId) {
+			setSessionId(cashStatus.session._id);
+		}
+	}, [cashStatus]);
+
 	const handleLogout = () => {
 		logout();
 		navigate('/login', { replace: true });
 	};
 
 	const handleConfirmSale = async () => {
-		if (items.length === 0) return;
+		if (items.length === 0 || !sessionId) return;
 
 		createSale.mutate(
-			{ items, payment_methods: payments },
+			{ items, payment_methods: payments, session_id: sessionId },
 			{
 				onSuccess: (sale) => {
 					setLastSaleId(sale._id);

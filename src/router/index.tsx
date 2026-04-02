@@ -81,6 +81,14 @@ export const router = createBrowserRouter([
 				},
 			},
 			{
+				path: 'cash-registers',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashRegistersPage');
+					return { Component };
+				},
+			},
+			{
 				path: 'cash',
 				lazy: async () => {
 					const { default: Component } = await import('../pages/cash/CashPage');

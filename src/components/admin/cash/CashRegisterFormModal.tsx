@@ -1,34 +1,35 @@
 import { useEffect, useState } from 'react';
 import {
-	useCreateCategory,
-	useUpdateCategory,
-} from '../../queries/categories.queries';
-import type { ICategory } from '../../types/categories.type';
-import { getErrorMessage } from '../../api/errors';
+	useCreateCashRegister,
+	useUpdateCashRegister,
+} from '../../../queries/cash.queries';
+import type { ICashRegister } from '../../../types/cash.type';
+import { getErrorMessage } from '../../../api/errors';
 
-interface ICategoryFormModalProps {
-	category: ICategory | null;
+interface ICashRegisterFormModalProps {
+	cashRegister: ICashRegister | null;
 	onClose: () => void;
 }
 
-type FormData = { name: string; prefix: string };
-const EMPTY_FORM: FormData = { name: '', prefix: '' };
+type FormData = { name: string };
+const EMPTY_FORM: FormData = { name: '' };
 
-export const CategoryFormModal = ({
-	category,
+export const CashRegisterFormModal = ({
+	cashRegister,
 	onClose,
-}: ICategoryFormModalProps) => {
-	const isEditing = !!category;
-	const createCategory = useCreateCategory();
-	const updateCategory = useUpdateCategory();
-	const isPending = createCategory.isPending || updateCategory.isPending;
-	const mutationError = createCategory.error || updateCategory.error;
+}: ICashRegisterFormModalProps) => {
+	const isEditing = !!cashRegister;
+	const createCashRegister = useCreateCashRegister();
+	const updateCashRegister = useUpdateCashRegister();
+	const isPending =
+		createCashRegister.isPending || updateCashRegister.isPending;
+	const mutationError = createCashRegister.error || updateCashRegister.error;
 	const [form, setForm] = useState<FormData>(EMPTY_FORM);
 	const [errors, setErrors] = useState<Partial<FormData>>({});
 
 	useEffect(() => {
-		if (category) setForm({ name: category.name, prefix: category.prefix });
-	}, [category]);
+		if (cashRegister) setForm({ name: cashRegister.name });
+	}, [cashRegister]);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -46,8 +47,6 @@ export const CategoryFormModal = ({
 	const validate = (): boolean => {
 		const newErrors: Partial<FormData> = {};
 		if (!form.name.trim()) newErrors.name = 'Requerido';
-		if (!form.prefix.trim()) newErrors.prefix = 'Requerido';
-		else if (form.prefix.length < 2) newErrors.prefix = 'Mínimo 2 letras';
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
 	};
@@ -55,23 +54,22 @@ export const CategoryFormModal = ({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!validate()) return;
-		const payload = { name: form.name.trim(), prefix: form.prefix.trim() };
+		const payload = { name: form.name.trim() };
 		if (isEditing) {
-			updateCategory.mutate(
-				{ id: category._id, payload },
+			updateCashRegister.mutate(
+				{ _id: cashRegister._id, ...payload },
 				{ onSuccess: onClose },
 			);
 		} else {
-			createCategory.mutate(payload, { onSuccess: onClose });
+			createCashRegister.mutate(payload, { onSuccess: onClose });
 		}
 	};
-
 	return (
 		<div className='fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4'>
 			<div className='w-full max-w-sm bg-[#111] border border-[#252525] rounded-xl overflow-hidden'>
 				<div className='flex items-center justify-between px-5 py-4 border-b border-[#1e1e1e]'>
 					<h2 className='text-[15px] font-semibold text-white'>
-						{isEditing ? 'Editar categoría' : 'Nueva categoría'}
+						{isEditing ? 'Editar caja registradora' : 'Nueva caja registradora'}
 					</h2>
 					<button
 						onClick={onClose}
@@ -90,7 +88,7 @@ export const CategoryFormModal = ({
 							name='name'
 							value={form.name}
 							onChange={handleChange}
-							placeholder='Ej: Ropa'
+							placeholder='Ej: Caja Local 2'
 							autoFocus
 							className={inputClass(!!errors.name)}
 						/>
@@ -99,38 +97,6 @@ export const CategoryFormModal = ({
 								{errors.name}
 							</p>
 						)}
-					</div>
-
-					<div>
-						<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
-							Prefijo de SKU
-						</label>
-						<input
-							name='prefix'
-							value={form.prefix}
-							onChange={handleChange}
-							placeholder='Ej: ROP'
-							maxLength={4}
-							className={inputClass(!!errors.prefix)}
-						/>
-						{errors.prefix ? (
-							<p className='text-[11px] font-mono text-red-500 mt-1'>
-								{errors.prefix}
-							</p>
-						) : (
-							<p className='text-[11px] font-mono text-[#444] mt-1'>
-								Solo letras, máximo 4 caracteres
-							</p>
-						)}
-					</div>
-
-					<div className='bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg p-3'>
-						<p className='text-[11px] font-mono text-[#555] mb-1'>
-							Preview del SKU
-						</p>
-						<p className='text-[14px] font-mono text-green-500'>
-							{form.prefix ? `${form.prefix}0001` : '---'}
-						</p>
 					</div>
 
 					{mutationError && (
@@ -156,7 +122,7 @@ export const CategoryFormModal = ({
 								? 'Guardando...'
 								: isEditing
 									? 'Guardar cambios'
-									: 'Crear categoría'}
+									: 'Crear caja registradora'}
 						</button>
 					</div>
 				</form>

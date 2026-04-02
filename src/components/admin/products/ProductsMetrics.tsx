@@ -1,4 +1,4 @@
-import type { IProduct } from '../../types/product.type';
+import type { IProduct } from '../../../types/product.type';
 
 interface IProductsMetricsProps {
 	products: IProduct[];

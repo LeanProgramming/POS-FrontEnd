@@ -1,9 +1,9 @@
-import type { ICategory } from '../../types/categories.type';
+import type { ICashRegister } from '../../../types/cash.type';
 
-interface ICategoryCardProps {
-	category: ICategory;
-	onEdit: (category: ICategory) => void;
-	onDelete: (category: ICategory) => void;
+interface ICashRegisterCardProps {
+	cashRegister: ICashRegister;
+	onEdit: (cashRegister: ICashRegister) => void;
+	onDelete: (cashRegister: ICashRegister) => void;
 }
 
 const ACCENT_COLORS = [
@@ -51,12 +51,13 @@ function getAccent(str: string) {
 		ACCENT_COLORS.length;
 	return ACCENT_COLORS[index];
 }
-export const CategoryCard = ({
-	category,
+
+export const CashRegisterCard = ({
+	cashRegister,
 	onEdit,
 	onDelete,
-}: ICategoryCardProps) => {
-	const accent = getAccent(category.prefix);
+}: ICashRegisterCardProps) => {
+	const accent = getAccent(cashRegister.name);
 
 	return (
 		<div
@@ -66,23 +67,22 @@ export const CategoryCard = ({
 			<span
 				className={`inline-flex w-fit text-[11px] font-mono font-semibold px-2 py-0.5 rounded ${accent.badge}`}
 			>
-				{category.prefix}
+				{cashRegister.name
+					.split(' ')
+					.map((el) => el.slice(0, 2))
+					.join('')
+					.toUpperCase()}
 			</span>
 
 			{/* Nombre */}
 			<p className='text-[14px] font-medium text-[#e5e5e5] leading-tight'>
-				{category.name}
-			</p>
-
-			{/* Ejemplo de SKU */}
-			<p className='text-[11px] font-mono text-[#444]'>
-				SKU: {category.prefix}0001 · {category.prefix}0002...
+				{cashRegister.name}
 			</p>
 
 			{/* Acciones — visibles al hover */}
 			<div className='absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity'>
 				<button
-					onClick={() => onEdit(category)}
+					onClick={() => onEdit(cashRegister)}
 					title='Editar'
 					className='w-7 h-7 flex items-center justify-center bg-[#1a1a1a] hover:bg-[#222] border border-[#2a2a2a] rounded transition-colors text-[#666] hover:text-[#ccc]'
 				>
@@ -101,7 +101,7 @@ export const CategoryCard = ({
 					</svg>
 				</button>
 				<button
-					onClick={() => onDelete(category)}
+					onClick={() => onDelete(cashRegister)}
 					title='Eliminar'
 					className='w-7 h-7 flex items-center justify-center bg-[#1a1a1a] hover:bg-[#2a1414] border border-[#2a2a2a] hover:border-red-900 rounded transition-colors text-[#666] hover:text-red-500'
 				>

@@ -1,4 +1,4 @@
-import type { IProduct } from '../../types/product.type';
+import type { IProduct } from '../../../types/product.type';
 import { ProductRow } from './ProductRow';
 import { TableEmpty } from './TableEmpty';
 import { TableError } from './TableError';

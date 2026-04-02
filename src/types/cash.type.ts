@@ -1,16 +1,21 @@
 export const CashMovementType = {
-	INCOME: 'income',
-	OUTCOME: 'outcome',
+	OPENING: 'opening',
+	SALE: 'sale',
+	REFUND: 'refund',
+	CASH_IN: 'cash_in',
+	CASH_OUT: 'cash_out',
+	CLOSING: 'closing',
 } as const;
 
 export type TCashMovementType =
 	(typeof CashMovementType)[keyof typeof CashMovementType];
 
 export interface ICashStatus {
-	isOpen: boolean;
-	initialAmount: number;
-	currentAmount: number;
+	is_open: boolean;
+	initial_balance: number;
+	current_balance: number;
 	openedAt?: string;
+	session: ISession;
 }
 
 export interface ICashMovement {
@@ -22,5 +27,28 @@ export interface ICashMovement {
 }
 
 export interface IOpenCashPayload {
-	initial_amount: number;
+	register_id: string;
+	opening_balance: number;
+}
+
+export interface ICloseCashPayload {
+	session_id: string;
+	closing_balance: number;
+}
+
+export interface ICashRegister {
+	_id: string;
+	name: string;
+	active: boolean;
+}
+
+export interface ISession {
+	cashier_id: string;
+	closed_at: string | null;
+	closing_balance: number | null;
+	is_open: boolean;
+	opened_at: string;
+	opening_balance: number;
+	register_id: string;
+	_id: string;
 }

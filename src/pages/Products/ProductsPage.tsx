@@ -5,10 +5,10 @@ import {
 	useGetProducts,
 } from '../../queries/products.queries';
 import { useGetCategories } from '../../queries/categories.queries';
-import { ProductsMetrics } from '../../components/products/ProductsMetrics';
-import { ProductsTable } from '../../components/products/ProductsTable';
-import { ProductFormModal } from '../../components/products/ProductFormModal';
-import { DeleteConfirmModal } from '../../components/products/DeleteConfirmModal';
+import { ProductsMetrics } from '../../components/admin/products/ProductsMetrics';
+import { ProductsTable } from '../../components/admin/products/ProductsTable';
+import { ProductFormModal } from '../../components/admin/products/ProductFormModal';
+import { DeleteConfirmModal } from '../../components/admin/products/DeleteConfirmModal';
 
 const STOCK_FILTERS = [
 	{ value: 'all', label: 'Todos' },

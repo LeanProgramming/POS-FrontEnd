@@ -1,60 +1,63 @@
 import { useState } from 'react';
-import type { ICategory } from '../../types/categories.type';
+import type { ICashRegister } from '../../types/cash.type';
 import {
-	useDeleteCategory,
-	useGetCategories,
-} from '../../queries/categories.queries';
+	useGetCashRegisters,
+	useToggleCashRegisterState,
+} from '../../queries/cash.queries';
 import { SkeletonGrid } from '../../components/admin/categories/SkeletonGrid';
-import { ErrorState } from '../../components/admin/categories/ErrorState';
-import { EmptyState } from '../../components/admin/categories/EmptyState';
-import { CategoryCard } from '../../components/admin/categories/CategoryCard';
-import { CategoryFormModal } from '../../components/admin/categories/CategoryFormModal';
+import { CashRegisterCard } from '../../components/admin/cash/CashRegisterCard';
+import { CashRegisterFormModal } from '../../components/admin/cash/CashRegisterFormModal';
 import { DeleteConfirmModal } from '../../components/admin/products/DeleteConfirmModal';
 
-const CategoriesPage = () => {
+const CashRegistersPage = () => {
 	const [search, setSearch] = useState('');
-	const [editingCategory, setEditingCategory] = useState<ICategory | null>(
+	const [editingRegister, setEditingRegister] = useState<ICashRegister | null>(
 		null,
 	);
 	const [showForm, setShowForm] = useState(false);
-	const [deletingCategory, setDeletingCategory] = useState<ICategory | null>(
-		null,
+	const [deletingRegister, setDeletingRegister] =
+		useState<ICashRegister | null>(null);
+
+	const {
+		data: cashRegisters = [],
+		isLoading,
+		isError,
+	} = useGetCashRegisters();
+	const deleteCategory = useToggleCashRegisterState();
+
+	const filtered = cashRegisters.filter(
+		(c) => !search || c.name.toLowerCase().includes(search.toLowerCase()),
 	);
 
-	const { data: categories = [], isLoading, isError } = useGetCategories();
-	const deleteCategory = useDeleteCategory();
-
-	const filtered = categories.filter(
-		(c) =>
-			!search ||
-			c.name.toLowerCase().includes(search.toLowerCase()) ||
-			c.prefix.toLowerCase().includes(search.toLowerCase()),
-	);
-
-	const handleEdit = (category: ICategory) => {
-		setEditingCategory(category);
+	const handleEdit = (cashRegister: ICashRegister) => {
+		setEditingRegister(cashRegister);
 		setShowForm(true);
 	};
 
 	const handleCloseForm = () => {
 		setShowForm(false);
-		setEditingCategory(null);
+		setEditingRegister(null);
 	};
 
 	const handleDeleteConfirm = () => {
-		if (!deletingCategory) return;
-		deleteCategory.mutate(deletingCategory._id, {
-			onSuccess: () => setDeletingCategory(null),
-		});
+		if (!deletingRegister) return;
+		deleteCategory.mutate(
+			{ active: !deletingRegister.active },
+			{
+				onSuccess: () => setDeletingRegister(null),
+			},
+		);
 	};
 	return (
 		<div className='flex flex-col gap-6'>
 			{/* Header */}
 			<div className='flex items-start justify-between'>
 				<div>
-					<h1 className='text-xl font-semibold text-white'>Categorías</h1>
+					<h1 className='text-xl font-semibold text-white'>
+						Cajas Registradas
+					</h1>
 					<p className='text-[13px] text-[#555] mt-0.5'>
-						Organizá los productos por categoría
+						Organizá los cajas físicas disponibles
 					</p>
 				</div>
 				<button
@@ -62,7 +65,7 @@ const CategoriesPage = () => {
 					className='flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-400 text-black text-[13px] font-semibold rounded-lg transition-colors'
 				>
 					<span className='text-base leading-none'>+</span>
-					Nueva categoría
+					Nueva caja
 				</button>
 			</div>
 
@@ -71,7 +74,7 @@ const CategoriesPage = () => {
 				<div className='bg-[#161616] border border-[#1e1e1e] rounded-lg p-4'>
 					<p className='text-[12px] font-mono text-[#555] mb-1'>Total</p>
 					<p className='text-2xl font-mono font-semibold text-white'>
-						{categories.length}
+						{cashRegisters.length}
 					</p>
 				</div>
 				<div className='bg-[#161616] border border-[#1e1e1e] rounded-lg p-4'>
@@ -101,7 +104,7 @@ const CategoriesPage = () => {
 					type='text'
 					value={search}
 					onChange={(e) => setSearch(e.target.value)}
-					placeholder='Buscar por nombre o prefijo...'
+					placeholder='Buscar por nombre...'
 					className='flex-1 bg-transparent text-sm text-[#e5e5e5] placeholder-[#444] outline-none'
 				/>
 				{search && (
@@ -123,12 +126,12 @@ const CategoriesPage = () => {
 				<EmptyState hasSearch={!!search} />
 			) : (
 				<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3'>
-					{filtered.map((category) => (
-						<CategoryCard
-							key={category._id}
-							category={category}
+					{filtered.map((cashRegister) => (
+						<CashRegisterCard
+							key={cashRegister._id}
+							cashRegister={cashRegister}
 							onEdit={handleEdit}
-							onDelete={setDeletingCategory}
+							onDelete={setDeletingRegister}
 						/>
 					))}
 				</div>
@@ -137,30 +140,55 @@ const CategoriesPage = () => {
 			{/* Contador */}
 			{!isLoading && (
 				<p className='text-[12px] font-mono text-[#444]'>
-					{filtered.length} de {categories.length} categorías
+					{filtered.length} de {cashRegisters.length} cajas registradoras.
 				</p>
 			)}
 
 			{/* Modal form */}
 			{showForm && (
-				<CategoryFormModal
-					category={editingCategory}
+				<CashRegisterFormModal
+					cashRegister={editingRegister}
 					onClose={handleCloseForm}
 				/>
 			)}
 
 			{/* Modal eliminar */}
-			{deletingCategory && (
+			{deletingRegister && (
 				<DeleteConfirmModal
-					title='Eliminar categoría'
-					description={`¿Seguro que querés eliminar "${deletingCategory.name}"? Los productos asociados quedarán sin categoría.`}
+					title='Eliminar caja registradora'
+					description={`¿Seguro que querés eliminar la caja "${deletingRegister?.name}"?`}
 					isLoading={deleteCategory.isPending}
 					onConfirm={handleDeleteConfirm}
-					onClose={() => setDeletingCategory(null)}
+					onClose={() => setDeletingRegister(null)}
 				/>
 			)}
 		</div>
 	);
 };
 
-export default CategoriesPage;
+const ErrorState = () => {
+	return (
+		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg py-16 flex items-center justify-center'>
+			<p className='text-[13px] font-mono text-red-600'>
+				Error al cargar las cajas registradoras
+			</p>
+		</div>
+	);
+};
+
+const EmptyState = ({ hasSearch }: { hasSearch: boolean }) => {
+	return (
+		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg py-16 flex flex-col items-center gap-2'>
+			<p className='text-[13px] font-mono text-[#444]'>
+				{hasSearch ? 'Sin resultados' : 'No hay cajas registradoras'}
+			</p>
+			{!hasSearch && (
+				<p className='text-[12px] text-[#333]'>
+					Creá la primera caja registradora con el botón de arriba
+				</p>
+			)}
+		</div>
+	);
+};
+
+export default CashRegistersPage;

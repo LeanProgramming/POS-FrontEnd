@@ -43,5 +43,6 @@ export const queryKeys = {
 	cash: {
 		status: () => ['cash', 'status'] as const,
 		movements: () => ['cash', 'movements'] as const,
+		registers: () => ['cash', 'registers'] as const,
 	},
 } as const;

@@ -1,5 +1,5 @@
-import type { IProduct } from '../../types/product.type';
-import { formatPrice } from '../../utils/formatPrice';
+import type { IProduct } from '../../../types/product.type';
+import { formatPrice } from '../../../utils/formatPrice';
 
 interface IProductRowProps {
 	product: IProduct;

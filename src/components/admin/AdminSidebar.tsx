@@ -121,6 +121,11 @@ const NAV_GROUPS: INavGroup[] = [
 	{
 		label: 'Caja',
 		items: [
+			{
+				label: 'Cajas Registradoras',
+				path: '/cash-registers',
+				icon: icons.cash,
+			},
 			{ label: 'Estado de caja', path: '/cash', icon: icons.cash },
 			{ label: 'Devoluciones', path: '/refunds', icon: icons.refunds },
 		],

@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import {
 	useCreateProduct,
 	useUpdateProduct,
-} from '../../queries/products.queries';
-import type { ICategory } from '../../types/categories.type';
-import type { ICreateProductPayload, IProduct } from '../../types/product.type';
-import { getErrorMessage } from '../../api/errors';
+} from '../../../queries/products.queries';
+import type { ICategory } from '../../../types/categories.type';
+import type {
+	ICreateProductPayload,
+	IProduct,
+} from '../../../types/product.type';
+import { getErrorMessage } from '../../../api/errors';
 
 interface IProductFormModalProps {
 	product: IProduct | null;
