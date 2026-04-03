@@ -13,7 +13,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
 	const user = useAuthStore((s) => s.user);
-	if (user?.role !== 'admin') return <Navigate to='/pos' replace />;
+	if (user?.role !== 'admin') return <Navigate to='/products' replace />;
 	return <>{children}</>;
 }
 
@@ -49,9 +49,7 @@ export const router = createBrowserRouter([
 		path: '/',
 		element: (
 			<RequireAuth>
-				<RequireAdmin>
-					<AdminLayout />
-				</RequireAdmin>
+				<AdminLayout />
 			</RequireAuth>
 		),
 		children: [
@@ -66,6 +64,11 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'categories',
+				element: (
+					<RequireAdmin>
+						<Navigate to='/products' replace />
+					</RequireAdmin>
+				),
 				lazy: async () => {
 					const { default: Component } =
 						await import('../pages/categories/CategoriesPage');
@@ -82,6 +85,11 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'cash-registers',
+				element: (
+					<RequireAdmin>
+						<Navigate to='/products' replace />
+					</RequireAdmin>
+				),
 				lazy: async () => {
 					const { default: Component } =
 						await import('../pages/cash/CashRegistersPage');
@@ -105,6 +113,11 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'users',
+				element: (
+					<RequireAdmin>
+						<Navigate to='/products' replace />
+					</RequireAdmin>
+				),
 				lazy: async () => {
 					const { default: Component } =
 						await import('../pages/users/UsersPage');

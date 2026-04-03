@@ -8,8 +8,8 @@ interface IProductsTableProps {
 	products: IProduct[];
 	isLoading: boolean;
 	isError: boolean;
-	onEdit: (product: IProduct) => void;
-	onDelete: (product: IProduct) => void;
+	onEdit?: (product: IProduct) => void;
+	onDelete?: (product: IProduct) => void;
 }
 
 export const ProductsTable = ({
@@ -19,15 +19,29 @@ export const ProductsTable = ({
 	onDelete,
 	onEdit,
 }: IProductsTableProps) => {
-	if (isLoading) return <TableSkeleton />;
+	const hasActions = !!onEdit || !!onDelete;
+
+	if (isLoading) return <TableSkeleton hasActions={hasActions} />;
 	if (isError) return <TableError />;
 	if (products.length === 0) return <TableEmpty />;
+
+	const cols = hasActions
+		? 'grid-cols-[2fr_1fr_1fr_1fr_80px]'
+		: 'grid-cols-[2fr_1fr_1fr_1fr]';
 
 	return (
 		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>
 			{/* Header */}
-			<div className='grid grid-cols-[2fr_1fr_1fr_1fr_80px] gap-3 px-4 py-3 bg-[#161616] border-b border-[#222]'>
-				{['Producto', 'Categoría', 'Precio', 'Stock', ''].map((col) => (
+			<div
+				className={`grid ${cols} gap-3 px-4 py-3 bg-[#161616] border-b border-[#222]`}
+			>
+				{[
+					'Producto',
+					'Categoría',
+					'Precio',
+					'Stock',
+					...(hasActions ? [''] : []),
+				].map((col) => (
 					<span
 						key={col}
 						className='text-[11px] font-mono text-[#555] uppercase tracking-wider'
@@ -43,6 +57,8 @@ export const ProductsTable = ({
 					<ProductRow
 						key={product._id}
 						product={product}
+						hasActions={hasActions}
+						cols={cols}
 						onEdit={onEdit}
 						onDelete={onDelete}
 					/>

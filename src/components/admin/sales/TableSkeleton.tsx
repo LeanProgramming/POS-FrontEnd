@@ -12,7 +12,7 @@ export const TableSkeleton = () => {
 				))}
 			</div>
 			<div className='divide-y divide-[#1a1a1a]'>
-				{Array.from({ length: 6 }).map((_, i) => (
+				{Array.from({ length: 5 }).map((_, i) => (
 					<div
 						key={i}
 						className='grid grid-cols-[1fr_100px_140px_32px] gap-3 px-4 py-3 animate-pulse items-center'

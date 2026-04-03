@@ -1,12 +1,35 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { AdminSidebar } from '../components/admin/AdminSidebar';
+import { useCashStore } from '../store/useCashStore.';
+import { useCloseCash, useGetCashStatus } from '../queries/cash.queries';
 
 export const AdminLayout = () => {
 	const navigate = useNavigate();
 	const { user, logout } = useAuthStore();
+	const { setSessionId } = useCashStore();
+
+	const { data: cashStatusResponse } = useGetCashStatus();
+	const closeCash = useCloseCash();
+
+	const handleClose = () => {
+		if (!cashStatusResponse) return;
+
+		closeCash.mutate(
+			{
+				session_id: cashStatusResponse.session._id,
+				closing_balance: cashStatusResponse.current_balance,
+			},
+			{
+				onSuccess: () => {
+					setSessionId(null);
+				},
+			},
+		);
+	};
 
 	const handleLogout = () => {
+		handleClose();
 		logout();
 		navigate('/login', { replace: true });
 	};

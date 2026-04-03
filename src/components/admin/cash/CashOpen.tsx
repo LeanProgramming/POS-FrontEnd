@@ -10,6 +10,7 @@ import { MetricCard } from './MetricCard';
 import { getErrorMessage } from '../../../api/errors';
 import { MovementsSkeleton } from './MovementsSkeleton';
 import { MovementRow } from './MovementRow';
+import { useCashStore } from '../../../store/useCashStore.';
 
 interface ICashOpenProps {
 	cashStatus: NonNullable<ReturnType<typeof useGetCashStatus>['data']>;
@@ -21,6 +22,7 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 	const { data: movements = [], isLoading: loadingMovements } =
 		useCashMovements();
 	const [confirmClose, setConfirmClose] = useState(false);
+	const { setSessionId } = useCashStore();
 
 	const handleClose = () => {
 		if (!cashStatusResponse) return;
@@ -31,7 +33,10 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 				closing_balance: cashStatusResponse.current_balance,
 			},
 			{
-				onSuccess: () => setConfirmClose(false),
+				onSuccess: () => {
+					setConfirmClose(false);
+					setSessionId(null);
+				},
 			},
 		);
 	};

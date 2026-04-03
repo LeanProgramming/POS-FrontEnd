@@ -62,7 +62,7 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 
 		createUser.mutate(
 			{
-				username: form.username.trim().toLowerCase(),
+				username: form.username.trim(),
 				password: form.password,
 				role: form.role,
 			},

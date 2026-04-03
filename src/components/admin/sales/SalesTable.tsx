@@ -5,12 +5,18 @@ interface ISalesTableProps {
 	sales: ISale[];
 	expandedId: string | null;
 	onToggle: (id: string) => void;
+	isAdmin: boolean;
+	refundingSaleId: string | null;
+	setRefundingSaleId: (value: string | null) => void;
 }
 
 export const SalesTable = ({
 	sales,
 	expandedId,
 	onToggle,
+	isAdmin,
+	refundingSaleId,
+	setRefundingSaleId,
 }: ISalesTableProps) => {
 	return (
 		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>
@@ -31,8 +37,12 @@ export const SalesTable = ({
 					<SaleRow
 						key={sale._id}
 						sale={sale}
+						isAdmin={isAdmin}
 						isExpanded={expandedId === sale._id}
+						isRefunding={refundingSaleId === sale._id}
 						onToggle={() => onToggle(sale._id)}
+						onRefundOpen={() => setRefundingSaleId(sale._id)}
+						onRefundClose={() => setRefundingSaleId(null)}
 					/>
 				))}
 			</div>

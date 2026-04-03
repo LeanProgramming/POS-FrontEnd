@@ -6,7 +6,7 @@ interface ICashState {
 	sessionId: string | null;
 	cashRegisterSelected: ICashRegister | null;
 	setCashRegister: (cashRegister: ICashRegister) => void;
-	setSessionId: (sessionId: string) => void;
+	setSessionId: (sessionId: string | null) => void;
 }
 
 export const useCashStore = create<ICashState>()(
@@ -16,7 +16,7 @@ export const useCashStore = create<ICashState>()(
 				sessionId: null,
 				cashRegisterSelected: null,
 
-				setSessionId: (sessionId: string) =>
+				setSessionId: (sessionId: string | null) =>
 					set({ sessionId: sessionId }, false, 'cash-store/setSessionId'),
 				setCashRegister: (data: ICashRegister) =>
 					set(

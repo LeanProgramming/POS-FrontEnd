@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePOSStore } from '../../store/usePOSStore';
-import type { TPaymentMethod } from '../../types/sales.type';
+import { PAYMENT_METHODS, type TPaymentMethod } from '../../types/sales.type';
 import { formatPrice } from '../../utils/formatPrice';
 
 interface IPOSPaymentModalProps {
@@ -10,13 +10,6 @@ interface IPOSPaymentModalProps {
 	isSubmitting: boolean;
 	error: string | null;
 }
-
-const PAYMENT_METHODS: { value: TPaymentMethod; label: string }[] = [
-	{ value: 'cash', label: 'Efectivo' },
-	{ value: 'transfer', label: 'Transferencia' },
-	{ value: 'qr', label: 'QR' },
-	{ value: 'card', label: 'Tarjeta' },
-];
 
 export const POSPaymentModal = ({
 	total,

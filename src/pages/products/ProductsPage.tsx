@@ -9,6 +9,7 @@ import { ProductsMetrics } from '../../components/admin/products/ProductsMetrics
 import { ProductsTable } from '../../components/admin/products/ProductsTable';
 import { ProductFormModal } from '../../components/admin/products/ProductFormModal';
 import { DeleteConfirmModal } from '../../components/admin/products/DeleteConfirmModal';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const STOCK_FILTERS = [
 	{ value: 'all', label: 'Todos' },
@@ -17,6 +18,9 @@ const STOCK_FILTERS = [
 ];
 
 const ProductsPage = () => {
+	const { user } = useAuthStore();
+	const isAdmin = user?.role === 'admin';
+
 	const [search, setSearch] = useState('');
 	const [categoryFilter, setCategoryFilter] = useState('');
 	const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
@@ -69,16 +73,20 @@ const ProductsPage = () => {
 				<div>
 					<h1 className='text-xl font-semibold text-white'>Productos</h1>
 					<p className='text-[13px] text-[#555] mt-0.5'>
-						Gestioná el catálogo de productos
+						{isAdmin
+							? 'Gestioná el catálogo de productos'
+							: 'Consultá el catálogo de productos'}
 					</p>
 				</div>
-				<button
-					onClick={() => setShowForm(true)}
-					className='flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-400 text-black text-[13px] font-semibold rounded-lg transition-colors'
-				>
-					<span className='text-base leading-none'>+</span>
-					Nuevo producto
-				</button>
+				{isAdmin && (
+					<button
+						onClick={() => setShowForm(true)}
+						className='flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-400 text-black text-[13px] font-semibold rounded-lg transition-colors'
+					>
+						<span className='text-base leading-none'>+</span>
+						Nuevo producto
+					</button>
+				)}
 			</div>
 
 			{/* Métricas */}
@@ -155,8 +163,8 @@ const ProductsPage = () => {
 				products={filtered}
 				isLoading={isLoading}
 				isError={isError}
-				onEdit={handleEdit}
-				onDelete={setDeletingProduct}
+				onEdit={isAdmin ? handleEdit : undefined}
+				onDelete={isAdmin ? setDeletingProduct : undefined}
 			/>
 
 			{/* Contador */}
@@ -167,7 +175,7 @@ const ProductsPage = () => {
 			)}
 
 			{/* Modal form */}
-			{showForm && (
+			{isAdmin && showForm && (
 				<ProductFormModal
 					product={editingProduct}
 					categories={categories}
@@ -176,7 +184,7 @@ const ProductsPage = () => {
 			)}
 
 			{/* Modal eliminar */}
-			{deletingProduct && (
+			{isAdmin && deletingProduct && (
 				<DeleteConfirmModal
 					title='Eliminar producto'
 					description={`¿Seguro que querés eliminar "${deletingProduct.name}"? Esta acción no se puede deshacer.`}

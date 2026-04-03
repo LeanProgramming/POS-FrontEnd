@@ -6,45 +6,57 @@ import { TableSkeleton } from '../../components/admin/sales/TableSkeleton';
 import { TableError } from '../../components/admin/sales/TableError';
 import { TableEmpty } from '../../components/admin/sales/TableEmpty';
 import { SalesTable } from '../../components/admin/sales/SalesTable';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const SalesPage = () => {
+	const { user } = useAuthStore();
+	const isAdmin = user?.role === 'admin';
+
 	const [search, setSearch] = useState('');
 	const [dateFilter, setDateFilter] = useState('');
 	const [expandedId, setExpandedId] = useState<string | null>(null);
+	const [refundingSaleId, setRefundingSaleId] = useState<string | null>(null);
 
-	const { data: sales = [], isLoading, isError } = useGetSales();
+	const { data: allSales = [], isLoading, isError } = useGetSales();
 
-	// ─── Filtros ──────────────────────────────────────────────────────────────
+	// Cajero solo ve sus ventas del día
+	const today = new Date().toLocaleDateString('es-AR');
+	const sales = isAdmin
+		? allSales
+		: allSales.filter(
+				(s) => new Date(s.created_at).toLocaleDateString('es-AR') === today,
+			);
 
 	const filtered = sales.filter((s) => {
 		const matchSearch =
 			!search || s._id.toLowerCase().includes(search.toLowerCase());
-
 		const matchDate =
 			!dateFilter ||
 			formatDateShort(s.created_at) === formatDateShort(dateFilter);
-
 		return matchSearch && matchDate;
 	});
 
-	// ─── Métricas del día ─────────────────────────────────────────────────────
-
-	const today = new Date().toLocaleDateString('es-AR');
-	const todaySales = sales.filter(
+	const todaySales = allSales.filter(
 		(s) => new Date(s.created_at).toLocaleDateString('es-AR') === today,
 	);
 	const totalToday = todaySales.reduce((acc, s) => acc + s.total, 0);
 
-	const toggleExpand = (id: string) =>
+	const toggleExpand = (id: string) => {
 		setExpandedId((prev) => (prev === id ? null : id));
+		setRefundingSaleId(null);
+	};
 
 	return (
 		<div className='flex flex-col gap-6'>
 			{/* Header */}
 			<div>
-				<h1 className='text-xl font-semibold text-white'>Ventas</h1>
+				<h1 className='text-xl font-semibold text-white'>
+					{isAdmin ? 'Ventas' : 'Mis ventas de hoy'}
+				</h1>
 				<p className='text-[13px] text-[#555] mt-0.5'>
-					Historial de ventas del sistema
+					{isAdmin
+						? 'Historial completo de ventas'
+						: 'Ventas realizadas en el día de hoy'}
 				</p>
 			</div>
 
@@ -52,26 +64,22 @@ const SalesPage = () => {
 			<div className='grid grid-cols-2 lg:grid-cols-4 gap-3'>
 				{[
 					{
-						label: 'Total ventas',
-						value: sales.length,
+						label: isAdmin ? 'Total ventas' : 'Mis ventas hoy',
 						display: String(sales.length),
 						accent: 'text-white',
 					},
 					{
 						label: 'Ventas hoy',
-						value: todaySales.length,
 						display: String(todaySales.length),
 						accent: 'text-green-500',
 					},
 					{
 						label: 'Facturado hoy',
-						value: totalToday,
 						display: formatPrice(totalToday),
 						accent: 'text-green-400',
 					},
 					{
 						label: 'Ticket promedio',
-						value: 0,
 						display: todaySales.length
 							? formatPrice(totalToday / todaySales.length)
 							: '—',
@@ -123,20 +131,23 @@ const SalesPage = () => {
 					)}
 				</div>
 
-				{/* Filtro fecha */}
-				<input
-					type='date'
-					value={dateFilter}
-					onChange={(e) => setDateFilter(e.target.value)}
-					className='bg-[#111] border border-[#1e1e1e] rounded-lg px-3 py-2 text-[13px] text-[#aaa] outline-none focus:border-[#333] transition-colors'
-				/>
-				{dateFilter && (
-					<button
-						onClick={() => setDateFilter('')}
-						className='px-3 py-2 bg-[#111] border border-[#1e1e1e] rounded-lg text-[12px] font-mono text-[#555] hover:text-[#aaa] transition-colors'
-					>
-						limpiar fecha
-					</button>
+				{isAdmin && (
+					<>
+						<input
+							type='date'
+							value={dateFilter}
+							onChange={(e) => setDateFilter(e.target.value)}
+							className='bg-[#111] border border-[#1e1e1e] rounded-lg px-3 py-2 text-[13px] text-[#aaa] outline-none focus:border-[#333] transition-colors'
+						/>
+						{dateFilter && (
+							<button
+								onClick={() => setDateFilter('')}
+								className='px-3 py-2 bg-[#111] border border-[#1e1e1e] rounded-lg text-[12px] font-mono text-[#555] hover:text-[#aaa] transition-colors'
+							>
+								limpiar fecha
+							</button>
+						)}
+					</>
 				)}
 			</div>
 
@@ -146,12 +157,15 @@ const SalesPage = () => {
 			) : isError ? (
 				<TableError />
 			) : filtered.length === 0 ? (
-				<TableEmpty hasFilters={!!search || !!dateFilter} />
+				<TableEmpty isAdmin={isAdmin} hasFilters={!!search || !!dateFilter} />
 			) : (
 				<SalesTable
 					sales={filtered}
 					expandedId={expandedId}
 					onToggle={toggleExpand}
+					isAdmin={isAdmin}
+					refundingSaleId={refundingSaleId}
+					setRefundingSaleId={setRefundingSaleId}
 				/>
 			)}
 

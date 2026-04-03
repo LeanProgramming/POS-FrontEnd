@@ -7,6 +7,13 @@ export const PaymentMethod = {
 
 export type TPaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 
+export const PAYMENT_METHODS: { value: TPaymentMethod; label: string }[] = [
+	{ value: 'cash', label: 'Efectivo' },
+	{ value: 'transfer', label: 'Transferencia' },
+	{ value: 'qr', label: 'QR' },
+	{ value: 'card', label: 'Tarjeta' },
+];
+
 export interface ISaleItem {
 	product_id: string;
 	name: string;

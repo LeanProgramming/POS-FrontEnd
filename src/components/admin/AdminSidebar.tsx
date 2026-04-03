@@ -1,16 +1,18 @@
 import React from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { SidebarNavItem } from './SidebarNavItem';
+import type { TUserRole } from '../../types/auth.type';
 
 export interface INavItem {
 	label: string;
 	path: string;
 	icon: React.ReactNode;
-	adminOnly?: boolean;
+	roles: TUserRole[];
 }
 
 export interface INavGroup {
 	label: string;
+	roles: TUserRole[];
 	items: INavItem[];
 }
 
@@ -111,36 +113,76 @@ const icons = {
 
 const NAV_GROUPS: INavGroup[] = [
 	{
-		label: 'Gestión',
+		label: 'Inventario',
+		roles: ['admin', 'cashier'],
 		items: [
-			{ label: 'Productos', path: '/products', icon: icons.products },
-			{ label: 'Categorías', path: '/categories', icon: icons.categories },
-			{ label: 'Ventas', path: '/sales', icon: icons.sales },
+			{
+				label: 'Productos',
+				path: '/products',
+				icon: icons.products,
+				roles: ['admin', 'cashier'],
+			},
+			{
+				label: 'Categorías',
+				path: '/categories',
+				icon: icons.categories,
+				roles: ['admin'],
+			},
+		],
+	},
+	{
+		label: 'Operaciones',
+		roles: ['admin', 'cashier'],
+		items: [
+			{
+				label: 'Ventas',
+				path: '/sales',
+				icon: icons.sales,
+				roles: ['admin', 'cashier'],
+			},
+			{
+				label: 'Devoluciones',
+				path: '/refunds',
+				icon: icons.refunds,
+				roles: ['admin', 'cashier'],
+			},
 		],
 	},
 	{
 		label: 'Caja',
+		roles: ['admin', 'cashier'],
 		items: [
 			{
 				label: 'Cajas Registradoras',
 				path: '/cash-registers',
 				icon: icons.cash,
+				roles: ['admin'],
 			},
-			{ label: 'Estado de caja', path: '/cash', icon: icons.cash },
-			{ label: 'Devoluciones', path: '/refunds', icon: icons.refunds },
+			{
+				label: 'Estado de caja',
+				path: '/cash',
+				icon: icons.cash,
+				roles: ['admin', 'cashier'],
+			},
 		],
 	},
 	{
 		label: 'Sistema',
+		roles: ['admin'],
 		items: [
-			{ label: 'Usuarios', path: '/users', icon: icons.users, adminOnly: true },
+			{
+				label: 'Usuarios',
+				path: '/users',
+				icon: icons.users,
+				roles: ['admin'],
+			},
 		],
 	},
 ];
 
 export const AdminSidebar = () => {
 	const { user } = useAuthStore();
-
+	const role = user?.role ?? 'cashier';
 	const initials = user?.username
 		? user.username.slice(0, 2).toUpperCase()
 		: '??';
@@ -148,9 +190,9 @@ export const AdminSidebar = () => {
 	return (
 		<aside className='w-[200px] shrink-0 bg-[#0d0d0d] border-r border-[#1e1e1e] flex flex-col py-3 overflow-hidden'>
 			<nav className='flex-1 px-2 space-y-4 overflow-y-auto'>
-				{NAV_GROUPS.map((group) => {
-					const visibleItems = group.items.filter(
-						(item) => !item.adminOnly || user?.role === 'admin',
+				{NAV_GROUPS.filter((g) => g.roles.includes(role)).map((group) => {
+					const visibleItems = group.items.filter((item) =>
+						item.roles.includes(role),
 					);
 
 					if (visibleItems.length === 0) return null;
