@@ -1,5 +1,6 @@
 import type { IRefund } from '../../../types/refunds.type';
 import { formatDate } from '../../../utils/formatDate';
+import { formatPrice } from '../../../utils/formatPrice';
 
 interface IRefundRowProps {
 	refund: IRefund;
@@ -16,7 +17,7 @@ export const RefundRow = ({
 		<div>
 			<button
 				onClick={onToggle}
-				className='w-full grid grid-cols-[1fr_1fr_140px_32px] gap-3 px-4 py-3 items-center hover:bg-[#161616] transition-colors text-left'
+				className='w-full grid grid-cols-[1fr_1fr_1fr_140px_32px] gap-3 px-4 py-3 items-center hover:bg-[#161616] transition-colors text-left'
 			>
 				<div className='flex flex-col gap-0.5'>
 					<span className='text-[12px] font-mono text-[#888]'>
@@ -33,6 +34,10 @@ export const RefundRow = ({
 
 				<span className='text-[12px] text-[#888] truncate'>
 					{refund.reason}
+				</span>
+
+				<span className='text-[13px] font-mono font-semibold text-red-400'>
+					{formatPrice(refund.total)}
 				</span>
 
 				<span
@@ -54,22 +59,39 @@ export const RefundRow = ({
 				</span>
 			</button>
 
-			{/* Detalle expandido */}
 			{isExpanded && (
 				<div className='bg-[#0d0d0d] border-t border-[#1a1a1a] px-4 py-4 space-y-3'>
 					<p className='text-[11px] font-mono text-[#555] uppercase tracking-widest mb-2'>
 						Ítems devueltos
 					</p>
-					{refund.items.map((item, i) => (
-						<div key={i} className='flex items-center gap-2'>
-							<span className='text-[11px] font-mono text-[#444] w-5'>
-								x{item.quantity}
-							</span>
-							<span className='text-[12px] font-mono text-[#888]'>
-								{item.product_id}
-							</span>
-						</div>
-					))}
+					<div className='space-y-1.5'>
+						{refund.items.map((item, i) => (
+							<div key={i} className='flex items-center justify-between'>
+								<div className='flex items-center gap-3'>
+									<span className='text-[11px] font-mono text-[#444]'>
+										x{item.quantity}
+									</span>
+									<div className='flex flex-col'>
+										<span className='text-[12px] text-[#ccc]'>{item.name}</span>
+										<span className='text-[10px] font-mono text-[#555]'>
+											{item.sku}
+										</span>
+									</div>
+								</div>
+								<span className='text-[12px] font-mono text-[#888]'>
+									{formatPrice(item.amount)}
+								</span>
+							</div>
+						))}
+					</div>
+					<div className='flex justify-between items-center border-t border-[#1e1e1e] pt-3'>
+						<span className='text-[11px] font-mono text-[#555]'>
+							Total devuelto
+						</span>
+						<span className='text-[13px] font-mono font-semibold text-red-400'>
+							{formatPrice(refund.total)}
+						</span>
+					</div>
 					<div className='border-t border-[#1e1e1e] pt-3'>
 						<p className='text-[11px] font-mono text-[#555] mb-1'>Motivo</p>
 						<p className='text-[13px] text-[#ccc]'>{refund.reason}</p>

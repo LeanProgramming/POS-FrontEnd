@@ -67,15 +67,17 @@ const RefundsPage = () => {
 				<TableEmpty />
 			) : (
 				<div className='bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>
-					<div className='grid grid-cols-[1fr_1fr_140px_32px] gap-3 px-4 py-3 bg-[#161616] border-b border-[#222]'>
-						{['ID devolución', 'Venta original', 'Motivo', ''].map((col) => (
-							<span
-								key={col}
-								className='text-[11px] font-mono text-[#555] uppercase tracking-wider'
-							>
-								{col}
-							</span>
-						))}
+					<div className='grid grid-cols-[1fr_1fr_1fr_140px_32px] gap-3 px-4 py-3 bg-[#161616] border-b border-[#222]'>
+						{['ID devolución', 'Venta original', 'Motivo', 'Total', ''].map(
+							(col) => (
+								<span
+									key={col}
+									className='text-[11px] font-mono text-[#555] uppercase tracking-wider'
+								>
+									{col}
+								</span>
+							),
+						)}
 					</div>
 					<div className='divide-y divide-[#1a1a1a]'>
 						{refunds.map((refund) => (

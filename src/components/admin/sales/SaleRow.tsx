@@ -33,6 +33,11 @@ export const SaleRow = ({
 	const [reason, setReason] = useState('Devolución de producto/s');
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
+	const remainingTotal = sale.items.reduce(
+		(acc, item) => acc + item.price * (item.quantity - item.refunded_quantity),
+		0,
+	);
+
 	const handleToggleItem = (productId: string, maxQty: number) => {
 		setSelectedItems((prev) => {
 			const exists = prev.find((i) => i.product_id === productId);
@@ -96,7 +101,7 @@ export const SaleRow = ({
 					{sale.items.length} {sale.items.length === 1 ? 'item' : 'items'}
 				</span>
 				<span className='text-[14px] font-mono font-semibold text-green-500'>
-					{formatPrice(sale.total)}
+					{formatPrice(remainingTotal)}
 				</span>
 				<span
 					className={`text-[#444] transition-transform duration-150 ${isExpanded ? 'rotate-180' : ''}`}
@@ -125,19 +130,36 @@ export const SaleRow = ({
 							Productos
 						</p>
 						<div className='space-y-1'>
-							{sale.items.map((item, i) => (
-								<div key={i} className='flex items-center justify-between'>
-									<div className='flex items-center gap-2'>
-										<span className='text-[11px] font-mono text-[#444] w-5'>
-											x{item.quantity}
-										</span>
-										<span className='text-[13px] text-[#ccc]'>{item.name}</span>
+							{sale.items.map((item, i) => {
+								const remaining = item.quantity - item.refunded_quantity;
+								return remaining > 0 ? (
+									<div key={i} className='flex items-center justify-between'>
+										<div className='flex items-center gap-2'>
+											<span className='text-[11px] font-mono text-[#444] w-5'>
+												x{remaining}
+											</span>
+											<span className='text-[13px] text-[#ccc]'>
+												{item.name}
+											</span>
+											{item.refunded_quantity > 0 && (
+												<span className='text-[10px] font-mono text-red-500'>
+													(devuelto x{item.refunded_quantity})
+												</span>
+											)}
+										</div>
+										<div className='flex items-center gap-3'>
+											<span className='text-[11px] font-mono text-[#555]'>
+												{formatPrice(item.price)} c/u
+											</span>
+											<span className='text-[13px] font-mono text-[#888]'>
+												{formatPrice(item.price * remaining)}
+											</span>
+										</div>
 									</div>
-									<span className='text-[13px] font-mono text-[#888]'>
-										{formatPrice(item.price * item.quantity)}
-									</span>
-								</div>
-							))}
+								) : (
+									<></>
+								);
+							})}
 						</div>
 					</div>
 
@@ -158,11 +180,21 @@ export const SaleRow = ({
 							))}
 						</div>
 					</div>
+					<div>
+						<p className='text-[11px] font-mono text-[#555] uppercase tracking-widest mb-2'>
+							DEVOLUCIONES
+						</p>
+						{sale.items.some((i) => i.refunded_quantity > 0) && (
+							<span className='text-[13px] font-mono text-red-400 bg-[#161616] border border-[#252525] rounded px-2 py-0.5 capitalize'>
+								{`${PAYMENT_METHODS.find((pm) => pm.value === 'cash')?.label} ·	-${formatPrice(sale.total - remainingTotal)} `}
+							</span>
+						)}
+					</div>
 
 					<div className='flex justify-between items-center border-t border-[#1e1e1e] pt-3'>
 						<span className='text-[12px] font-mono text-[#555]'>Total</span>
 						<span className='text-[15px] font-mono font-semibold text-green-500'>
-							{formatPrice(sale.total)}
+							{formatPrice(remainingTotal)}
 						</span>
 					</div>
 
@@ -187,8 +219,18 @@ export const SaleRow = ({
 									className='py-2 px-3 bg-[#1a1a1a] hover:bg-[#2a1414] border border-[#252525] hover:border-red-900 text-[12px] font-mono text-[#666] hover:text-red-500 rounded-lg transition-colors'
 									title='Eliminar venta'
 								>
-									<svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-										<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+									<svg
+										className='w-3.5 h-3.5'
+										fill='none'
+										stroke='currentColor'
+										viewBox='0 0 24 24'
+									>
+										<path
+											strokeLinecap='round'
+											strokeLinejoin='round'
+											strokeWidth={1.5}
+											d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+										/>
 									</svg>
 								</button>
 							)}
@@ -205,11 +247,12 @@ export const SaleRow = ({
 									const selected = selectedItems.find(
 										(i) => i.product_id === item.product_id,
 									);
+									const remaining = item.quantity - item.refunded_quantity;
 									return (
 										<div
 											key={item.product_id}
 											onClick={() =>
-												handleToggleItem(item.product_id, item.quantity)
+												handleToggleItem(item.product_id, remaining)
 											}
 											className={`flex items-center gap-3 p-2.5 rounded-lg border cursor-pointer transition-colors ${
 												selected
@@ -244,7 +287,7 @@ export const SaleRow = ({
 												{item.name}
 											</span>
 											<span className='text-[11px] font-mono text-[#555]'>
-												x{item.quantity}
+												x{remaining}
 											</span>
 											{selected && (
 												<select
@@ -259,7 +302,7 @@ export const SaleRow = ({
 													className='bg-[#0d0d0d] border border-green-800 rounded px-1.5 py-0.5 text-[11px] font-mono text-green-400 outline-none'
 												>
 													{Array.from(
-														{ length: item.quantity },
+														{ length: remaining },
 														(_, i) => i + 1,
 													).map((n) => (
 														<option key={n} value={n}>

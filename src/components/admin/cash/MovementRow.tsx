@@ -7,7 +7,7 @@ interface IMovementRowProps {
 }
 
 export const MovementRow = ({ movement }: IMovementRowProps) => {
-	const isIncome = movement.type !== 'refund' && movement.type !== 'cash_out';
+	const isOutcome = ['refund', 'cash_out'].includes(movement.type);
 	return (
 		<div className='flex items-center justify-between px-4 py-3 hover:bg-[#161616] transition-colors'>
 			<div className='flex flex-col gap-0.5'>
@@ -18,10 +18,10 @@ export const MovementRow = ({ movement }: IMovementRowProps) => {
 			</div>
 			<span
 				className={`text-[13px] font-mono font-semibold ${
-					isIncome ? 'text-green-500' : 'text-red-500'
+					isOutcome ? 'text-red-500' : 'text-green-500'
 				}`}
 			>
-				{isIncome ? '+' : '-'}
+				{!isOutcome && '+'}
 				{formatPrice(movement.amount)}
 			</span>
 		</div>

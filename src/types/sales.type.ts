@@ -18,6 +18,7 @@ export interface ISaleItem {
 	product_id: string;
 	name: string;
 	quantity: number;
+	refunded_quantity: number;
 	price: number;
 }
 
