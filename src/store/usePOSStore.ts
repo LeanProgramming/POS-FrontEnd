@@ -65,9 +65,9 @@ export const usePOSStore = create<IPOSState>()(
 										quantity: 1,
 										price: product.price,
 										subtotal: product.price,
+										refunded_quantity: 0,
 									},
 								];
-						console.log({ updatedItems });
 
 						return {
 							items: updatedItems,
