@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../api/queryKeys';
-import { createSale, getSaleById, getSales } from '../services/sale.service';
+import {
+	createSale,
+	deleteSale,
+	getSaleById,
+	getSales,
+} from '../services/sale.service';
 import { usePOSStore } from '../store/usePOSStore';
 import type { ICreateSalePayload } from '../types/sales.type';
 
@@ -29,6 +34,19 @@ export const useCreateSale = () => {
 			queryClient.invalidateQueries({ queryKey: queryKeys.sales.all() });
 			queryClient.invalidateQueries({ queryKey: queryKeys.cash.status() });
 			clearCart();
+		},
+	});
+};
+
+export const useDeleteSale = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (id: string) => deleteSale(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.sales.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.products.all() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.status() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.movements() });
 		},
 	});
 };

@@ -1,8 +1,10 @@
+import type { ICategory } from '../../../types/categories.type';
 import type { IProduct } from '../../../types/product.type';
 import { formatPrice } from '../../../utils/formatPrice';
 
 interface IProductRowProps {
 	product: IProduct;
+	categories: ICategory[];
 	hasActions: boolean;
 	cols: string;
 	onEdit?: (p: IProduct) => void;
@@ -11,11 +13,16 @@ interface IProductRowProps {
 
 export const ProductRow = ({
 	product,
+	categories,
 	hasActions,
 	cols,
 	onDelete,
 	onEdit,
 }: IProductRowProps) => {
+	const categoryName =
+		categories.find((c) => c.prefix === product.category)?.name ||
+		product.category;
+
 	const stockStatus =
 		product.stock === 0
 			? { color: 'text-red-500', dot: 'bg-red-500', label: 'Sin stock' }
@@ -43,7 +50,7 @@ export const ProductRow = ({
 
 			<span className='inline-flex'>
 				<span className='text-[11px] font-mono text-[#6b9] bg-[#0f2a1a] border border-[#1e4a2a] rounded px-2 py-0.5'>
-					{product.category}
+					{categoryName}
 				</span>
 			</span>
 

@@ -1,3 +1,4 @@
+import type { ICategory } from '../../../types/categories.type';
 import type { IProduct } from '../../../types/product.type';
 import { ProductRow } from './ProductRow';
 import { TableEmpty } from './TableEmpty';
@@ -6,6 +7,7 @@ import { TableSkeleton } from './TableSkeleton';
 
 interface IProductsTableProps {
 	products: IProduct[];
+	categories: ICategory[];
 	isLoading: boolean;
 	isError: boolean;
 	onEdit?: (product: IProduct) => void;
@@ -14,6 +16,7 @@ interface IProductsTableProps {
 
 export const ProductsTable = ({
 	products,
+	categories,
 	isError,
 	isLoading,
 	onDelete,
@@ -57,6 +60,7 @@ export const ProductsTable = ({
 					<ProductRow
 						key={product._id}
 						product={product}
+						categories={categories}
 						hasActions={hasActions}
 						cols={cols}
 						onEdit={onEdit}

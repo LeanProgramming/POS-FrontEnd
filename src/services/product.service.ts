@@ -74,3 +74,14 @@ export const deleteProduct = async (id: string): Promise<void> => {
 		return handleApiError(error);
 	}
 };
+
+export const getNextSku = async (prefix: string): Promise<string> => {
+	try {
+		const { data } = await api.get<string>('/products/next-sku', {
+			params: { prefix },
+		});
+		return data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};

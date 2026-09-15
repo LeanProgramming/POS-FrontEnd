@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
 	useCreateProduct,
+	useNextSku,
 	useUpdateProduct,
 } from '../../../queries/products.queries';
 import type { ICategory } from '../../../types/categories.type';
@@ -51,6 +52,9 @@ export const ProductFormModal = ({
 	const [form, setForm] = useState<FormData>(EMPTY_FORM);
 	const [errors, setErrors] = useState<Partial<FormData>>({});
 
+	const categoryPrefix = form.category || null;
+	const { data: nextSku } = useNextSku(categoryPrefix);
+
 	useEffect(() => {
 		if (product) {
 			setForm({
@@ -64,6 +68,12 @@ export const ProductFormModal = ({
 			});
 		}
 	}, [product]);
+
+	useEffect(() => {
+		if (!isEditing && nextSku) {
+			setForm((prev) => ({ ...prev, sku: nextSku }));
+		}
+	}, [nextSku, isEditing]);
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -173,7 +183,7 @@ export const ProductFormModal = ({
 						>
 							<option value=''>Seleccioná una categoría</option>
 							{categories.map((c) => (
-								<option key={c._id} value={c.name}>
+								<option key={c._id} value={c.prefix}>
 									{c.name}
 								</option>
 							))}

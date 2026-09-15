@@ -134,7 +134,7 @@ const ProductsPage = () => {
 				>
 					<option value=''>Todas las categorías</option>
 					{categories.map((c) => (
-						<option key={c._id} value={c.name}>
+						<option key={c._id} value={c.prefix}>
 							{c.name}
 						</option>
 					))}
@@ -165,6 +165,7 @@ const ProductsPage = () => {
 				isError={isError}
 				onEdit={isAdmin ? handleEdit : undefined}
 				onDelete={isAdmin ? setDeletingProduct : undefined}
+				categories={categories}
 			/>
 
 			{/* Contador */}

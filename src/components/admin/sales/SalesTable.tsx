@@ -8,6 +8,7 @@ interface ISalesTableProps {
 	isAdmin: boolean;
 	refundingSaleId: string | null;
 	setRefundingSaleId: (value: string | null) => void;
+	onDelete?: (sale: ISale) => void;
 }
 
 export const SalesTable = ({
@@ -17,6 +18,7 @@ export const SalesTable = ({
 	isAdmin,
 	refundingSaleId,
 	setRefundingSaleId,
+	onDelete,
 }: ISalesTableProps) => {
 	return (
 		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>
@@ -43,6 +45,7 @@ export const SalesTable = ({
 						onToggle={() => onToggle(sale._id)}
 						onRefundOpen={() => setRefundingSaleId(sale._id)}
 						onRefundClose={() => setRefundingSaleId(null)}
+						onDelete={onDelete ? () => onDelete(sale) : undefined}
 					/>
 				))}
 			</div>

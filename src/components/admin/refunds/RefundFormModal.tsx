@@ -14,7 +14,7 @@ export const RefundFormModal = ({ sales, onClose }: IRefundFormModalProps) => {
 	const createRefund = useCreateRefund();
 
 	const [saleId, setSaleId] = useState('');
-	const [reason, setReason] = useState('');
+	const [reason, setReason] = useState('Devolución de producto/s');
 	const [selectedItems, setSelectedItems] = useState<
 		{ product_id: string; quantity: number; name: string; maxQty: number }[]
 	>([]);
@@ -227,7 +227,7 @@ export const RefundFormModal = ({ sales, onClose }: IRefundFormModalProps) => {
 								setReason(e.target.value);
 								setErrors((prev) => ({ ...prev, reason: '' }));
 							}}
-							placeholder='Ej: Producto dañado'
+							placeholder='Devolución de producto/s'
 							className={inputClass(!!errors.reason)}
 						/>
 						{errors.reason && (

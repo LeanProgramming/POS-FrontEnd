@@ -3,6 +3,7 @@ import { queryKeys } from '../api/queryKeys';
 import {
 	createProduct,
 	deleteProduct,
+	getNextSku,
 	getProductById,
 	getProducts,
 	searchProducts,
@@ -72,3 +73,10 @@ export const useDeleteProduct = () => {
 		},
 	});
 };
+
+export const useNextSku = (prefix: string | null) =>
+	useQuery({
+		queryKey: ['products', 'next-sku', prefix],
+		queryFn: () => getNextSku(prefix!),
+		enabled: !!prefix,
+	});

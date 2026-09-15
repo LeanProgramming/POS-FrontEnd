@@ -13,6 +13,7 @@ interface ISaleRowProps {
 	onToggle: () => void;
 	onRefundOpen: () => void;
 	onRefundClose: () => void;
+	onDelete?: () => void;
 }
 
 export const SaleRow = ({
@@ -23,12 +24,13 @@ export const SaleRow = ({
 	onToggle,
 	onRefundOpen,
 	onRefundClose,
+	onDelete,
 }: ISaleRowProps) => {
 	const createRefund = useCreateRefund();
 	const [selectedItems, setSelectedItems] = useState<
 		{ product_id: string; quantity: number; maxQty: number }[]
 	>([]);
-	const [reason, setReason] = useState('');
+	const [reason, setReason] = useState('Devolución de producto/s');
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	const handleToggleItem = (productId: string, maxQty: number) => {
@@ -50,7 +52,7 @@ export const SaleRow = ({
 
 	const handleRefundClose = () => {
 		setSelectedItems([]);
-		setReason('');
+		setReason('Devolución de producto/s');
 		setErrors({});
 		onRefundClose();
 	};
@@ -166,15 +168,31 @@ export const SaleRow = ({
 
 					{/* Devolución parcial — disponible para todos */}
 					{!isRefunding ? (
-						<button
-							onClick={(e) => {
-								e.stopPropagation();
-								onRefundOpen();
-							}}
-							className='w-full py-2 bg-[#1a1a1a] hover:bg-[#2a1414] border border-[#252525] hover:border-red-900 text-[12px] font-mono text-[#666] hover:text-red-500 rounded-lg transition-colors'
-						>
-							{isAdmin ? 'Registrar devolución' : 'Cancelar / devolver ítems'}
-						</button>
+						<div className='flex gap-2'>
+							<button
+								onClick={(e) => {
+									e.stopPropagation();
+									onRefundOpen();
+								}}
+								className='flex-1 py-2 bg-[#1a1a1a] hover:bg-[#2a1414] border border-[#252525] hover:border-red-900 text-[12px] font-mono text-[#666] hover:text-red-500 rounded-lg transition-colors'
+							>
+								{isAdmin ? 'Registrar devolución' : 'Cancelar / devolver ítems'}
+							</button>
+							{isAdmin && onDelete && (
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										onDelete();
+									}}
+									className='py-2 px-3 bg-[#1a1a1a] hover:bg-[#2a1414] border border-[#252525] hover:border-red-900 text-[12px] font-mono text-[#666] hover:text-red-500 rounded-lg transition-colors'
+									title='Eliminar venta'
+								>
+									<svg className='w-3.5 h-3.5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+										<path strokeLinecap='round' strokeLinejoin='round' strokeWidth={1.5} d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
+									</svg>
+								</button>
+							)}
+						</div>
 					) : (
 						<div className='bg-[#111] border border-[#1e1e1e] rounded-lg p-4 space-y-3'>
 							<p className='text-[12px] font-mono text-[#555] uppercase tracking-widest'>

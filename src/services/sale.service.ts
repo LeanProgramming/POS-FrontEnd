@@ -30,3 +30,11 @@ export const createSale = async (
 		return handleApiError(error);
 	}
 };
+
+export const deleteSale = async (id: string): Promise<void> => {
+	try {
+		await api.delete(`/sales/${id}`);
+	} catch (error) {
+		return handleApiError(error);
+	}
+};

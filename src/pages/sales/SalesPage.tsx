@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetSales } from '../../queries/sales.queries';
+import { useGetSales, useDeleteSale } from '../../queries/sales.queries';
 import { formatDateShort } from '../../utils/formatDate';
 import { formatPrice } from '../../utils/formatPrice';
 import { TableSkeleton } from '../../components/admin/sales/TableSkeleton';
@@ -7,6 +7,8 @@ import { TableError } from '../../components/admin/sales/TableError';
 import { TableEmpty } from '../../components/admin/sales/TableEmpty';
 import { SalesTable } from '../../components/admin/sales/SalesTable';
 import { useAuthStore } from '../../store/useAuthStore';
+import { getErrorMessage } from '../../api/errors';
+import type { ISale } from '../../types/sales.type';
 
 const SalesPage = () => {
 	const { user } = useAuthStore();
@@ -16,8 +18,10 @@ const SalesPage = () => {
 	const [dateFilter, setDateFilter] = useState('');
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 	const [refundingSaleId, setRefundingSaleId] = useState<string | null>(null);
+	const [deletingSale, setDeletingSale] = useState<ISale | null>(null);
 
 	const { data: allSales = [], isLoading, isError } = useGetSales();
+	const deleteSale = useDeleteSale();
 
 	// Cajero solo ve sus ventas del día
 	const today = new Date().toLocaleDateString('es-AR');
@@ -44,6 +48,13 @@ const SalesPage = () => {
 	const toggleExpand = (id: string) => {
 		setExpandedId((prev) => (prev === id ? null : id));
 		setRefundingSaleId(null);
+	};
+
+	const handleDeleteConfirm = () => {
+		if (!deletingSale) return;
+		deleteSale.mutate(deletingSale._id, {
+			onSuccess: () => setDeletingSale(null),
+		});
 	};
 
 	return (
@@ -166,6 +177,7 @@ const SalesPage = () => {
 					isAdmin={isAdmin}
 					refundingSaleId={refundingSaleId}
 					setRefundingSaleId={setRefundingSaleId}
+					onDelete={isAdmin ? setDeletingSale : undefined}
 				/>
 			)}
 
@@ -174,6 +186,56 @@ const SalesPage = () => {
 				<p className='text-[12px] font-mono text-[#444]'>
 					{filtered.length} de {sales.length} ventas
 				</p>
+			)}
+
+			{/* Modal eliminar */}
+			{isAdmin && deletingSale && (
+				<div className='fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4'>
+					<div className='w-full max-w-sm bg-[#111] border border-[#252525] rounded-xl overflow-hidden'>
+						<div className='flex items-center justify-between px-5 py-4 border-b border-[#1e1e1e]'>
+							<h2 className='text-[15px] font-semibold text-white'>
+								Eliminar venta
+							</h2>
+							<button
+								onClick={() => setDeletingSale(null)}
+								className='text-[#555] hover:text-white transition-colors text-xl leading-none'
+							>
+								×
+							</button>
+						</div>
+						<div className='p-5 space-y-4'>
+							<p className='text-[13px] text-[#aaa]'>
+								¿Seguro que querés eliminar la venta{' '}
+								<span className='font-mono text-white'>
+									#{deletingSale._id.slice(-8).toUpperCase()}
+								</span>
+								? Se revertirá el stock y los movimientos de caja. Esta acción no se
+								puede deshacer.
+							</p>
+							{deleteSale.isError && (
+								<p className='text-[12px] font-mono text-red-500'>
+									{getErrorMessage(deleteSale.error)}
+								</p>
+							)}
+							<div className='flex gap-2'>
+								<button
+									onClick={() => setDeletingSale(null)}
+									disabled={deleteSale.isPending}
+									className='flex-1 py-2.5 bg-[#161616] border border-[#252525] hover:border-[#444] text-[13px] font-mono text-[#888] rounded-lg transition-colors'
+								>
+									Cancelar
+								</button>
+								<button
+									onClick={handleDeleteConfirm}
+									disabled={deleteSale.isPending}
+									className='flex-1 py-2.5 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-semibold rounded-lg transition-colors'
+								>
+									{deleteSale.isPending ? 'Eliminando...' : 'Eliminar'}
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
 			)}
 		</div>
 	);
