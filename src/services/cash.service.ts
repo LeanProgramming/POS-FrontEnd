@@ -1,6 +1,7 @@
 import api from '../api/api';
 import { handleApiError } from '../api/errors';
 import type {
+	ICashBalance,
 	ICashMovement,
 	ICashMovementPayload,
 	ICashRegister,
@@ -109,6 +110,17 @@ export const createCashOut = async (
 ): Promise<ICashMovement> => {
 	try {
 		const res = await api.post<ICashMovement>('/cash/cash-out', payload);
+		return res.data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};
+
+export const getCashBalance = async (params: {
+	session_id: string;
+}): Promise<ICashBalance> => {
+	try {
+		const res = await api.get<ICashBalance>('/cash/balance', { params });
 		return res.data;
 	} catch (error) {
 		return handleApiError(error);

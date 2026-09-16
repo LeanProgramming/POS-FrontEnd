@@ -57,3 +57,14 @@ export interface ICashMovementPayload {
 	amount: number;
 	description?: string;
 }
+
+export interface ICashBalance {
+	session_id: string;
+	expected_cash_balance: number;
+	opening_balance: number;
+	total_cash_sales: number;
+	total_non_cash_sales: number;
+	total_refunds: number;
+	total_cash_in: number;
+	total_cash_out: number;
+}

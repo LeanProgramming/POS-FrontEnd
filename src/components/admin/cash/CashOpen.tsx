@@ -12,6 +12,7 @@ import { MovementsSkeleton } from './MovementsSkeleton';
 import { MovementRow } from './MovementRow';
 import { useCashStore } from '../../../store/useCashStore.';
 import { CashMovementModal } from './CashMovementModal';
+import { CashReconciliation } from './CashReconciliation';
 
 interface ICashOpenProps {
 	cashStatus: NonNullable<ReturnType<typeof useGetCashStatus>['data']>;
@@ -111,6 +112,11 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 							</span>
 						</div>
 					)}
+
+					{/* Arqueo de caja */}
+					<CashReconciliation />
+
+					{/* Botones de acción */}
 					<div className='flex gap-2'>
 						<button
 							onClick={() => setMovementModal('cash_in')}

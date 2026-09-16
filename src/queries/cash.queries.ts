@@ -5,6 +5,7 @@ import {
 	createCashIn,
 	createCashOut,
 	createCashRegister,
+	getCashBalance,
 	getCashMovements,
 	getCashRegisters,
 	getCashStatus,
@@ -110,5 +111,14 @@ export const useCashOut = () => {
 			queryClient.invalidateQueries({ queryKey: queryKeys.cash.movements() });
 			queryClient.invalidateQueries({ queryKey: queryKeys.cash.status() });
 		},
+	});
+};
+
+export const useCashBalance = () => {
+	const { sessionId } = useCashStore();
+	return useQuery({
+		queryKey: [...queryKeys.cash.balance(), sessionId],
+		queryFn: () => getCashBalance({ session_id: sessionId! }),
+		enabled: Boolean(sessionId),
 	});
 };
