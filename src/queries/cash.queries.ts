@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../api/queryKeys';
 import {
 	closeCash,
+	createCashIn,
+	createCashOut,
 	createCashRegister,
 	getCashMovements,
 	getCashRegisters,
@@ -10,7 +12,11 @@ import {
 	toggleCashRegisterState,
 	updateCashRegister,
 } from '../services/cash.service';
-import type { ICloseCashPayload, IOpenCashPayload } from '../types/cash.type';
+import type {
+	ICashMovementPayload,
+	ICloseCashPayload,
+	IOpenCashPayload,
+} from '../types/cash.type';
 import { useCashStore } from '../store/useCashStore.';
 
 export const useGetCashStatus = () =>
@@ -81,6 +87,28 @@ export const useToggleCashRegisterState = () => {
 			toggleCashRegisterState(payload),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: queryKeys.cash.registers() });
+		},
+	});
+};
+
+export const useCashIn = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (payload: ICashMovementPayload) => createCashIn(payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.movements() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.status() });
+		},
+	});
+};
+
+export const useCashOut = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (payload: ICashMovementPayload) => createCashOut(payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.movements() });
+			queryClient.invalidateQueries({ queryKey: queryKeys.cash.status() });
 		},
 	});
 };

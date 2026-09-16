@@ -2,6 +2,7 @@ import api from '../api/api';
 import { handleApiError } from '../api/errors';
 import type {
 	ICashMovement,
+	ICashMovementPayload,
 	ICashRegister,
 	ICashStatus,
 	ICloseCashPayload,
@@ -86,6 +87,28 @@ export const toggleCashRegisterState = async (payload: {
 }): Promise<ICashRegister> => {
 	try {
 		const res = await api.post<ICashRegister>('/cash/register/toggle', payload);
+		return res.data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};
+
+export const createCashIn = async (
+	payload: ICashMovementPayload,
+): Promise<ICashMovement> => {
+	try {
+		const res = await api.post<ICashMovement>('/cash/cash-in', payload);
+		return res.data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};
+
+export const createCashOut = async (
+	payload: ICashMovementPayload,
+): Promise<ICashMovement> => {
+	try {
+		const res = await api.post<ICashMovement>('/cash/cash-out', payload);
 		return res.data;
 	} catch (error) {
 		return handleApiError(error);

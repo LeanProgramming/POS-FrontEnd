@@ -14,7 +14,6 @@ export interface ICashStatus {
 	is_open: boolean;
 	initial_balance: number;
 	current_balance: number;
-	openedAt?: string;
 	session: ISession;
 }
 
@@ -51,4 +50,10 @@ export interface ISession {
 	opening_balance: number;
 	register_id: string;
 	_id: string;
+}
+
+export interface ICashMovementPayload {
+	session_id: string;
+	amount: number;
+	description?: string;
 }

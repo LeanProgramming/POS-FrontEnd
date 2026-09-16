@@ -11,6 +11,7 @@ import { getErrorMessage } from '../../../api/errors';
 import { MovementsSkeleton } from './MovementsSkeleton';
 import { MovementRow } from './MovementRow';
 import { useCashStore } from '../../../store/useCashStore.';
+import { CashMovementModal } from './CashMovementModal';
 
 interface ICashOpenProps {
 	cashStatus: NonNullable<ReturnType<typeof useGetCashStatus>['data']>;
@@ -21,8 +22,11 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 	const closeCash = useCloseCash();
 	const { data: movements = [], isLoading: loadingMovements } =
 		useCashMovements();
-	const [confirmClose, setConfirmClose] = useState(false);
 	const { setSessionId } = useCashStore();
+	const [confirmClose, setConfirmClose] = useState(false);
+	const [movementModal, setMovementModal] = useState<
+		'cash_in' | 'cash_out' | null
+	>(null);
 
 	const handleClose = () => {
 		if (!cashStatusResponse) return;
@@ -94,12 +98,12 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 					</div>
 
 					{/* Info apertura */}
-					{cashStatus.openedAt && (
+					{cashStatus.session.opened_at && (
 						<div className='bg-[#161616] border border-[#1e1e1e] rounded-lg px-4 py-3 flex items-center justify-between'>
 							<div className='flex items-center gap-2'>
 								<span className='w-1.5 h-1.5 rounded-full bg-green-500' />
 								<span className='text-[12px] font-mono text-[#555]'>
-									Abierta el {formatDate(cashStatus.openedAt)}
+									Abierta el {formatDate(cashStatus.session.opened_at)}
 								</span>
 							</div>
 							<span className='text-[11px] font-mono text-[#444]'>
@@ -107,7 +111,20 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 							</span>
 						</div>
 					)}
-
+					<div className='flex gap-2'>
+						<button
+							onClick={() => setMovementModal('cash_in')}
+							className='flex-1 py-2.5 bg-[#0f1f12] hover:bg-[#142a18] border border-green-900 text-green-500 text-[12px] font-semibold rounded-lg transition-colors'
+						>
+							+ Ingreso
+						</button>
+						<button
+							onClick={() => setMovementModal('cash_out')}
+							className='flex-1 py-2.5 bg-[#1a0f0f] hover:bg-[#2a1414] border border-red-900 text-red-500 text-[12px] font-semibold rounded-lg transition-colors'
+						>
+							+ Egreso
+						</button>
+					</div>
 					{/* Cerrar caja */}
 					{!confirmClose ? (
 						<button
@@ -171,6 +188,12 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 					</div>
 				</div>
 			</div>
+			{movementModal && (
+				<CashMovementModal
+					type={movementModal}
+					onClose={() => setMovementModal(null)}
+				/>
+			)}
 		</div>
 	);
 };
