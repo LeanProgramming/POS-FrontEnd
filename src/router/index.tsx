@@ -98,10 +98,32 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'cash',
-				lazy: async () => {
-					const { default: Component } = await import('../pages/cash/CashPage');
-					return { Component };
-				},
+				children: [
+					{
+						index: true,
+						lazy: async () => {
+							const { default: Component } =
+								await import('../pages/cash/CashPage');
+							return { Component };
+						},
+					},
+					{
+						path: 'movements',
+						lazy: async () => {
+							const { default: Component } =
+								await import('../pages/cash/CashMovementsPage');
+							return { Component };
+						},
+					},
+					{
+						path: 'cash-count',
+						lazy: async () => {
+							const { default: Component } =
+								await import('../pages/cash/CashCountPage');
+							return { Component };
+						},
+					},
+				],
 			},
 			{
 				path: 'refunds',
