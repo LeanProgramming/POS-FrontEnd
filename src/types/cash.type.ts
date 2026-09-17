@@ -33,6 +33,7 @@ export interface IOpenCashPayload {
 export interface ICloseCashPayload {
 	session_id: string;
 	closing_balance: number;
+	closing_transfer_balance: number;
 }
 
 export interface ICashRegister {
@@ -45,6 +46,7 @@ export interface ISession {
 	cashier_id: string;
 	closed_at: string | null;
 	closing_balance: number | null;
+	closing_transfer_balance: number | null;
 	is_open: boolean;
 	opened_at: string;
 	opening_balance: number;

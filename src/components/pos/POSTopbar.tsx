@@ -43,7 +43,7 @@ export const POSTopbar = ({ user, cashStatus, onLogout }: IPOSTopbarProps) => {
 				{user?.role == 'admin' ? (
 					<button
 						onClick={() =>
-							user?.role == 'admin' ? navigate('/users') : navigate('/sales')
+							user?.role == 'admin' ? navigate('/cash') : navigate('/sales')
 						}
 						className='flex items-center gap-1.5 text-[11px] font-mono text-[#555] hover:text-[#ccc] transition-colors px-2 py-1 bg-[#1a1a1a] border border-[#252525] rounded hover:border-[#444]'
 					>
@@ -60,7 +60,7 @@ export const POSTopbar = ({ user, cashStatus, onLogout }: IPOSTopbarProps) => {
 								d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'
 							/>
 						</svg>
-						usuarios
+						estado de caja
 					</button>
 				) : (
 					<button

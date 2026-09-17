@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import {
 	useCashMovements,
-	useCloseCash,
 	useGetCashStatus,
 } from '../../../queries/cash.queries';
 import { formatPrice } from '../../../utils/formatPrice';
 import { formatDate } from '../../../utils/formatDate';
 import { MetricCard } from './MetricCard';
-import { getErrorMessage } from '../../../api/errors';
 import { MovementsSkeleton } from './MovementsSkeleton';
 import { MovementRow } from './MovementRow';
-import { useCashStore } from '../../../store/useCashStore.';
 import { CashMovementModal } from './CashMovementModal';
 import { CashReconciliation } from './CashReconciliation';
 
@@ -19,38 +16,17 @@ interface ICashOpenProps {
 }
 
 export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
-	const { data: cashStatusResponse } = useGetCashStatus();
-	const closeCash = useCloseCash();
 	const { data: movements = [], isLoading: loadingMovements } =
 		useCashMovements();
-	const { setSessionId } = useCashStore();
-	const [confirmClose, setConfirmClose] = useState(false);
 	const [movementModal, setMovementModal] = useState<
 		'cash_in' | 'cash_out' | null
 	>(null);
 
-	const handleClose = () => {
-		if (!cashStatusResponse) return;
-
-		closeCash.mutate(
-			{
-				session_id: cashStatusResponse.session._id,
-				closing_balance: cashStatusResponse.current_balance,
-			},
-			{
-				onSuccess: () => {
-					setConfirmClose(false);
-					setSessionId(null);
-				},
-			},
-		);
-	};
-
-	const totalIngresos = movements
+	const totalIncome = movements
 		.filter((m) => m.type === 'cash_in')
 		.reduce((acc, m) => acc + m.amount, 0);
 
-	const totalEgresos = movements
+	const totalOutcome = movements
 		.filter((m) => m.type === 'cash_out')
 		.reduce((acc, m) => acc + m.amount, 0);
 	return (
@@ -88,12 +64,12 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 						/>
 						<MetricCard
 							label='Ingresos'
-							value={formatPrice(totalIngresos)}
+							value={formatPrice(totalIncome)}
 							accent='text-green-500'
 						/>
 						<MetricCard
 							label='Egresos'
-							value={formatPrice(totalEgresos)}
+							value={formatPrice(totalOutcome)}
 							accent='text-red-500'
 						/>
 					</div>
@@ -128,47 +104,9 @@ export const CashOpen = ({ cashStatus }: ICashOpenProps) => {
 							onClick={() => setMovementModal('cash_out')}
 							className='flex-1 py-2.5 bg-[#1a0f0f] hover:bg-[#2a1414] border border-red-900 text-red-500 text-[12px] font-semibold rounded-lg transition-colors'
 						>
-							+ Egreso
+							- Egreso
 						</button>
 					</div>
-					{/* Cerrar caja */}
-					{!confirmClose ? (
-						<button
-							onClick={() => setConfirmClose(true)}
-							className='w-full py-3 bg-[#2a1414] hover:bg-[#3a1a1a] border border-red-900 text-red-500 text-[13px] font-semibold rounded-lg transition-colors'
-						>
-							Cerrar caja
-						</button>
-					) : (
-						<div className='bg-[#1a0f0f] border border-red-900 rounded-lg p-4 space-y-3'>
-							<p className='text-[13px] text-[#ccc]'>
-								¿Confirmás el cierre de caja?
-							</p>
-							<p className='text-[12px] font-mono text-[#555]'>
-								Se registrarán todos los movimientos del día.
-							</p>
-							{closeCash.isError && (
-								<p className='text-[12px] font-mono text-red-500'>
-									{getErrorMessage(closeCash.error)}
-								</p>
-							)}
-							<div className='flex gap-2'>
-								<button
-									onClick={() => setConfirmClose(false)}
-									className='flex-1 py-2 bg-[#161616] border border-[#252525] hover:border-[#444] text-[13px] font-mono text-[#888] rounded-lg transition-colors'
-								>
-									Cancelar
-								</button>
-								<button
-									onClick={handleClose}
-									disabled={closeCash.isPending}
-									className='flex-1 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-[13px] font-semibold rounded-lg transition-colors'
-								>
-									{closeCash.isPending ? 'Cerrando...' : 'Confirmar cierre'}
-								</button>
-							</div>
-						</div>
-					)}
 				</div>
 
 				{/* Panel derecho: movimientos */}

@@ -7,7 +7,7 @@ import { POSProductGrid } from '../../components/pos/POSProductGrid';
 import { POSCart } from '../../components/pos/POSCart';
 import { POSPaymentModal } from '../../components/pos/POSPaymentModal';
 import { POSSuccessModal } from '../../components/pos/POSSuccessModal';
-import { useCloseCash, useGetCashStatus } from '../../queries/cash.queries';
+import { useGetCashStatus } from '../../queries/cash.queries';
 import { useCreateSale } from '../../queries/sales.queries';
 import { getErrorMessage } from '../../api/errors';
 import { useCashStore } from '../../store/useCashStore.';
@@ -25,9 +25,6 @@ export const POSPage = () => {
 	const { data: cashStatus, isLoading: cashLoading } = useGetCashStatus();
 	const createSale = useCreateSale();
 
-	const { data: cashStatusResponse } = useGetCashStatus();
-	const closeCash = useCloseCash();
-
 	useEffect(() => {
 		if (!cashStatus) return;
 
@@ -36,24 +33,11 @@ export const POSPage = () => {
 		}
 	}, [cashStatus]);
 
-	const handleClose = () => {
-		if (!cashStatusResponse) return;
-
-		closeCash.mutate(
-			{
-				session_id: cashStatusResponse.session._id,
-				closing_balance: cashStatusResponse.current_balance,
-			},
-			{
-				onSuccess: () => {
-					setSessionId(null);
-				},
-			},
-		);
-	};
-
 	const handleLogout = () => {
-		handleClose();
+		if (cashStatus?.is_open) {
+			navigate('/cash');
+			return;
+		}
 		logout();
 		navigate('/login', { replace: true });
 	};
