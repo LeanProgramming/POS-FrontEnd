@@ -17,8 +17,15 @@ const FILTERS: { value: FilterType; label: string }[] = [
 
 export const CashMovementsPage = () => {
 	const navigate = useNavigate();
-	const { data: movements = [], isLoading } = useCashMovements();
 	const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+	const [startDate, setStartDate] = useState('');
+	const [endDate, setEndDate] = useState('');
+
+	const { data: movements = [], isLoading } = useCashMovements({
+		type: activeFilter === 'all' ? undefined : activeFilter,
+		start_date: startDate || undefined,
+		end_date: endDate || undefined,
+	});
 
 	const filteredMovements =
 		activeFilter === 'all'
@@ -101,11 +108,52 @@ export const CashMovementsPage = () => {
 					<button
 						key={filter.value}
 						onClick={() => setActiveFilter(filter.value)}
-						className={`px-3 py-1.5 text-[12px] font-mono rounded-lg border transition-colors ${activeFilter === filter.value ? 'bg-[#1a1a1a border-[#444] text-white' : 'bg-[#111] border-[#252525] text-[#666] hover:text-[#888]'}`}
+						className={`px-3 py-1.5 text-[12px] font-mono rounded-lg border transition-colors ${
+							activeFilter === filter.value
+								? 'bg-[#1a1a1a] border-[#444] text-white'
+								: 'bg-[#111] border-[#252525] text-[#666] hover:text-[#888]'
+						}`}
 					>
 						{filter.label}
 					</button>
 				))}
+			</div>
+
+			{/* Filtros de fecha */}
+			<div className='flex gap-3 items-end'>
+				<div>
+					<label className='block text-[10px] font-mono text-[#444] uppercase tracking-wider mb-1'>
+						Desde
+					</label>
+					<input
+						type='date'
+						value={startDate}
+						onChange={(e) => setStartDate(e.target.value)}
+						className='bg-[#141414] border border-[#2a2a2a] focus:border-green-700 rounded-lg px-3 py-2 text-[12px] font-mono text-white outline-none'
+					/>
+				</div>
+				<div>
+					<label className='block text-[10px] font-mono text-[#444] uppercase tracking-wider mb-1'>
+						Hasta
+					</label>
+					<input
+						type='date'
+						value={endDate}
+						onChange={(e) => setEndDate(e.target.value)}
+						className='bg-[#141414] border border-[#2a2a2a] focus:border-green-700 rounded-lg px-3 py-2 text-[12px] font-mono text-white outline-none'
+					/>
+				</div>
+				{(startDate || endDate) && (
+					<button
+						onClick={() => {
+							setStartDate('');
+							setEndDate('');
+						}}
+						className='px-3 py-2 text-[12px] font-mono text-[#555] hover:text-white transition-colors'
+					>
+						Limpiar fechas
+					</button>
+				)}
 			</div>
 
 			{/* Lista */}
@@ -120,9 +168,7 @@ export const CashMovementsPage = () => {
 							</p>
 						</div>
 					) : (
-						filteredMovements.map((m) => (
-							<MovementRow key={m._id} movement={m} />
-						))
+						movements.map((m) => <MovementRow key={m._id} movement={m} />)
 					)}
 				</div>
 			</div>

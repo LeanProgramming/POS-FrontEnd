@@ -70,3 +70,49 @@ export interface ICashBalance {
 	total_cash_in: number;
 	total_cash_out: number;
 }
+
+export interface ICashSession {
+	_id: string;
+	register_id: string;
+	cashier_id: string;
+	opening_balance: number;
+	closing_balance: number | null;
+	closing_transfer_balance: number | null;
+	is_open: boolean;
+	opened_at: string;
+	closed_at: string | null;
+}
+
+export interface ICashSessionsResponse {
+	sessions: ICashSession[];
+	total: number;
+	skip: number;
+	limit: number;
+}
+
+export interface IPaymentMethodSummary {
+	method: string;
+	label: string;
+	total: number;
+	count: number;
+}
+
+export interface IDailySummary {
+	session_id: string;
+	register_name: string;
+	cashier_id: string;
+	total_sales: number;
+	total_refunds: number;
+	net_sales: number;
+	total_cash_in: number;
+	total_cash_out: number;
+	payment_methods: IPaymentMethodSummary[];
+	opening_balance: number;
+	expected_cash_balance: number;
+	closing_balance: number | null;
+	closing_transfer_balance: number | null;
+	cash_difference: number | null;
+	transfer_difference: number | null;
+	opened_at: string;
+	closed_at: string | null;
+}

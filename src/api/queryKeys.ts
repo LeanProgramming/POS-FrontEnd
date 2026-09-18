@@ -45,5 +45,7 @@ export const queryKeys = {
 		movements: () => ['cash', 'movements'] as const,
 		registers: () => ['cash', 'registers'] as const,
 		balance: () => ['cash', 'balance'] as const,
+		sessions: () => ['cash', 'sessions'] as const,
+		dailySummary: () => ['cash', 'dailySummary'] as const,
 	},
 } as const;

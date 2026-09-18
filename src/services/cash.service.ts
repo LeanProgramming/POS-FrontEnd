@@ -5,8 +5,10 @@ import type {
 	ICashMovement,
 	ICashMovementPayload,
 	ICashRegister,
+	ICashSessionsResponse,
 	ICashStatus,
 	ICloseCashPayload,
+	IDailySummary,
 	IOpenCashPayload,
 } from '../types/cash.type';
 
@@ -43,6 +45,9 @@ export const closeCash = async (
 
 export const getCashMovements = async (params: {
 	session_id: string;
+	type?: string;
+	start_date?: string;
+	end_date?: string;
 }): Promise<ICashMovement[]> => {
 	try {
 		const res = await api.get<ICashMovement[]>('/cash/movements', { params });
@@ -121,6 +126,34 @@ export const getCashBalance = async (params: {
 }): Promise<ICashBalance> => {
 	try {
 		const res = await api.get<ICashBalance>('/cash/balance', { params });
+		return res.data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};
+
+export const getCashSessions = async (params?: {
+	register_id?: string;
+	cashier_id?: string;
+	is_open?: boolean;
+	skip?: number;
+	limit?: number;
+}): Promise<ICashSessionsResponse> => {
+	try {
+		const res = await api.get<ICashSessionsResponse>('/cash/sessions', {
+			params,
+		});
+		return res.data;
+	} catch (error) {
+		return handleApiError(error);
+	}
+};
+
+export const getDailySummary = async (params: {
+	session_id: string;
+}): Promise<IDailySummary> => {
+	try {
+		const res = await api.get<IDailySummary>('/cash/daily-summary', { params });
 		return res.data;
 	} catch (error) {
 		return handleApiError(error);

@@ -8,7 +8,9 @@ import {
 	getCashBalance,
 	getCashMovements,
 	getCashRegisters,
+	getCashSessions,
 	getCashStatus,
+	getDailySummary,
 	openCash,
 	toggleCashRegisterState,
 	updateCashRegister,
@@ -30,11 +32,19 @@ export const useGetCashStatus = () =>
 export const useGetCashRegisters = () =>
 	useQuery({ queryKey: queryKeys.cash.registers(), queryFn: getCashRegisters });
 
-export const useCashMovements = () => {
+export const useCashMovements = (filters?: {
+	type?: string;
+	start_date?: string;
+	end_date?: string;
+}) => {
 	const { sessionId } = useCashStore();
 	return useQuery({
-		queryKey: [...queryKeys.cash.movements(), sessionId],
-		queryFn: () => getCashMovements({ session_id: sessionId! }),
+		queryKey: [...queryKeys.cash.movements(), sessionId, filters],
+		queryFn: () =>
+			getCashMovements({
+				session_id: sessionId!,
+				...filters,
+			}),
 		enabled: Boolean(sessionId),
 	});
 };
@@ -122,3 +132,22 @@ export const useCashBalance = () => {
 		enabled: Boolean(sessionId),
 	});
 };
+
+export const useCashSessions = (params?: {
+	register_id?: string;
+	cashier_id?: string;
+	is_open?: boolean;
+	skip?: number;
+	limit?: number;
+}) =>
+	useQuery({
+		queryKey: [...queryKeys.cash.sessions(), params],
+		queryFn: () => getCashSessions(params),
+	});
+
+export const useDailySummary = (sessionId: string | null) =>
+	useQuery({
+		queryKey: [...queryKeys.cash.dailySummary(), sessionId],
+		queryFn: () => getDailySummary({ session_id: sessionId! }),
+		enabled: Boolean(sessionId),
+	});

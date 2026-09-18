@@ -5,6 +5,7 @@ export const SidebarNavItem = ({ item }: { item: INavItem }) => {
 	return (
 		<NavLink
 			to={item.path}
+			end
 			className={({ isActive }) =>
 				`flex items-center gap-2.5 px-2 py-1.5 rounded-md text-[13px] transition-colors group ${
 					isActive

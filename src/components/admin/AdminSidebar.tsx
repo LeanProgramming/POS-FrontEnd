@@ -2,12 +2,14 @@ import React from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { SidebarNavItem } from './SidebarNavItem';
 import type { TUserRole } from '../../types/auth.type';
+import { useGetCashStatus } from '../../queries/cash.queries';
 
 export interface INavItem {
 	label: string;
 	path: string;
 	icon: React.ReactNode;
 	roles: TUserRole[];
+	requiresOpen?: boolean;
 }
 
 export interface INavGroup {
@@ -139,6 +141,36 @@ const icons = {
 			/>
 		</svg>
 	),
+	history: (
+		<svg
+			className='w-4 h-4'
+			fill='none'
+			stroke='currentColor'
+			viewBox='0 0 24 24'
+		>
+			<path
+				strokeLinecap='round'
+				strokeLinejoin='round'
+				strokeWidth={1.5}
+				d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+			/>
+		</svg>
+	),
+	daily_summary: (
+		<svg
+			className='w-4 h-4'
+			fill='none'
+			stroke='currentColor'
+			viewBox='0 0 24 24'
+		>
+			<path
+				strokeLinecap='round'
+				strokeLinejoin='round'
+				strokeWidth={1.5}
+				d='M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+			/>
+		</svg>
+	),
 };
 
 const NAV_GROUPS: INavGroup[] = [
@@ -194,18 +226,34 @@ const NAV_GROUPS: INavGroup[] = [
 				icon: icons.cash,
 				roles: ['admin', 'cashier'],
 			},
-			{
-				label: 'Movimientos',
-				path: '/cash/movements',
-				icon: icons.movements,
-				roles: ['admin', 'cashier'],
-			},
-			{
-				label: 'Arqueo de caja',
-				path: '/cash/cash-count',
-				icon: icons.cash_count,
-				roles: ['admin', 'cashier'],
-			},
+		{
+			label: 'Movimientos',
+			path: '/cash/movements',
+			icon: icons.movements,
+			roles: ['admin', 'cashier'],
+			requiresOpen: true,
+		},
+		{
+			label: 'Arqueo de caja',
+			path: '/cash/cash-count',
+			icon: icons.cash_count,
+			roles: ['admin', 'cashier'],
+			requiresOpen: true,
+		},
+		{
+			label: 'Historial',
+			path: '/cash/history',
+			icon: icons.history,
+			roles: ['admin', 'cashier'],
+			requiresOpen: true,
+		},
+		{
+			label: 'Corte Z',
+			path: '/cash/daily-summary',
+			icon: icons.daily_summary,
+			roles: ['admin'],
+			requiresOpen: true,
+		},
 		],
 	},
 	{
@@ -224,7 +272,9 @@ const NAV_GROUPS: INavGroup[] = [
 
 export const AdminSidebar = () => {
 	const { user } = useAuthStore();
+	const { data: cashStatus } = useGetCashStatus();
 	const role = user?.role ?? 'cashier';
+	const isCashOpen = cashStatus?.is_open ?? false;
 	const initials = user?.username
 		? user.username.slice(0, 2).toUpperCase()
 		: '??';
@@ -233,8 +283,10 @@ export const AdminSidebar = () => {
 		<aside className='w-[200px] shrink-0 bg-[#0d0d0d] border-r border-[#1e1e1e] flex flex-col py-3 overflow-hidden'>
 			<nav className='flex-1 px-2 space-y-4 overflow-y-auto'>
 				{NAV_GROUPS.filter((g) => g.roles.includes(role)).map((group) => {
-					const visibleItems = group.items.filter((item) =>
-						item.roles.includes(role),
+					const visibleItems = group.items.filter(
+						(item) =>
+							item.roles.includes(role) &&
+							(!item.requiresOpen || isCashOpen),
 					);
 
 					if (visibleItems.length === 0) return null;

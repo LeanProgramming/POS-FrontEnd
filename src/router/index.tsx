@@ -98,38 +98,48 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'cash',
-				children: [
-					{
-						index: true,
-						lazy: async () => {
-							const { default: Component } =
-								await import('../pages/cash/CashPage');
-							return { Component };
-						},
-					},
-					{
-						path: 'movements',
-						lazy: async () => {
-							const { default: Component } =
-								await import('../pages/cash/CashMovementsPage');
-							return { Component };
-						},
-					},
-					{
-						path: 'cash-count',
-						lazy: async () => {
-							const { default: Component } =
-								await import('../pages/cash/CashCountPage');
-							return { Component };
-						},
-					},
-				],
+				lazy: async () => {
+					const { default: Component } = await import('../pages/cash/CashPage');
+					return { Component };
+				},
 			},
 			{
-				path: 'refunds',
+				path: 'cash/movements',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashMovementsPage');
+					return { Component };
+				},
+			},
+			{
+				path: 'cash/cash-count',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashCountPage');
+					return { Component };
+				},
+			},
+			{
+				path: 'cash/refunds',
 				lazy: async () => {
 					const { default: Component } =
 						await import('../pages/refunds/RefundsPage');
+					return { Component };
+				},
+			},
+			{
+				path: 'cash/history',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashHistoryPage');
+					return { Component };
+				},
+			},
+			{
+				path: 'cash/daily-summary',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashDailySummaryPage');
 					return { Component };
 				},
 			},
