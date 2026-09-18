@@ -6,6 +6,7 @@ import { CashCounter } from './CashCounter';
 import { useNavigate } from 'react-router-dom';
 import { useCashStore } from '../../../store/useCashStore.';
 import { getErrorMessage } from '../../../api/errors';
+import toast from 'react-hot-toast';
 
 export const CashReconciliation = () => {
 	const navigate = useNavigate();
@@ -223,11 +224,19 @@ export const CashReconciliation = () => {
 						{/* Botón cerrar caja */}
 						{!showConfirm ? (
 							<button
-								onClick={() => setShowConfirm(true)}
-								disabled={!closingBalance}
+								onClick={() => {
+									if (!closingBalance) {
+										console.log('Cerrando caja');
+										toast.error(
+											'Debes ingresar los montos de efectivo y transferencias.',
+										);
+										return;
+									}
+									setShowConfirm(true);
+								}}
 								className='w-full py-3 bg-[#2a1414] hover:bg-[#3a1a1a] border border-red-900 text-red-500 text-[13px] font-semibold rounded-lg transition-colors'
 							>
-								Cerrar caja
+								Cerrar caja nueva
 							</button>
 						) : (
 							<div className='bg-[#1a0f0f] border border-red-900 rounded-lg p-4 space-y-3'>
