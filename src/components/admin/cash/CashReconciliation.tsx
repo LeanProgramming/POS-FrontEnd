@@ -226,7 +226,6 @@ export const CashReconciliation = () => {
 							<button
 								onClick={() => {
 									if (!closingBalance) {
-										console.log('Cerrando caja');
 										toast.error(
 											'Debes ingresar los montos de efectivo y transferencias.',
 										);
@@ -236,7 +235,7 @@ export const CashReconciliation = () => {
 								}}
 								className='w-full py-3 bg-[#2a1414] hover:bg-[#3a1a1a] border border-red-900 text-red-500 text-[13px] font-semibold rounded-lg transition-colors'
 							>
-								Cerrar caja nueva
+								Cerrar caja
 							</button>
 						) : (
 							<div className='bg-[#1a0f0f] border border-red-900 rounded-lg p-4 space-y-3'>
