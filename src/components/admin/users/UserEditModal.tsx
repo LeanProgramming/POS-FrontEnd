@@ -1,35 +1,30 @@
 import { useState } from 'react';
-import type { TUserRole } from '../../../types/auth.type';
-import { useCreateUser } from '../../../queries/users.queries';
+import type { IUser } from '../../../types/users.type';
+import { useUpdateUser } from '../../../queries/users.queries';
 import { getErrorMessage } from '../../../api/errors';
 
-interface IUserFormModalProps {
+interface IUserEditModalProps {
+	user: IUser;
 	onClose: () => void;
 }
 
 type FormData = {
-	username: string;
 	first_name: string;
 	last_name: string;
 	password: string;
 	confirmPassword: string;
-	role: TUserRole;
 };
 
-const EMPTY_FORM: FormData = {
-	username: '',
-	first_name: '',
-	last_name: '',
-	password: '',
-	confirmPassword: '',
-	role: 'cashier',
-};
-
-export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
-	const [form, setForm] = useState<FormData>(EMPTY_FORM);
+export const UserEditModal = ({ user, onClose }: IUserEditModalProps) => {
+	const [form, setForm] = useState<FormData>({
+		first_name: user.first_name,
+		last_name: user.last_name,
+		password: '',
+		confirmPassword: '',
+	});
 	const [errors, setErrors] = useState<Partial<FormData>>({});
 	const [showPassword, setShowPassword] = useState(false);
-	const createUser = useCreateUser();
+	const updateUser = useUpdateUser();
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -37,30 +32,21 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 		setErrors((prev) => ({ ...prev, [name]: undefined }));
 	};
 
-	const handleRoleChange = (role: TUserRole) => {
-		setForm((prev) => ({ ...prev, role }));
-	};
-
 	const validate = (): boolean => {
 		const newErrors: Partial<FormData> = {};
-		if (!form.username.trim()) {
-			newErrors.username = 'Requerido';
-		} else if (form.username.trim().length < 3) {
-			newErrors.username = 'Mínimo 3 caracteres';
-		}
 		if (!form.first_name.trim()) {
 			newErrors.first_name = 'Requerido';
 		}
 		if (!form.last_name.trim()) {
 			newErrors.last_name = 'Requerido';
 		}
-		if (!form.password) {
-			newErrors.password = 'Requerido';
-		} else if (form.password.length < 6) {
-			newErrors.password = 'Mínimo 6 caracteres';
-		}
-		if (form.password !== form.confirmPassword) {
-			newErrors.confirmPassword = 'Las contraseñas no coinciden';
+		if (form.password) {
+			if (form.password.length < 6) {
+				newErrors.password = 'Mínimo 6 caracteres';
+			}
+			if (form.password !== form.confirmPassword) {
+				newErrors.confirmPassword = 'Las contraseñas no coinciden';
+			}
 		}
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -70,14 +56,25 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 		e.preventDefault();
 		if (!validate()) return;
 
-		createUser.mutate(
-			{
-				username: form.username.trim(),
-				first_name: form.first_name.trim(),
-				last_name: form.last_name.trim(),
-				password: form.password,
-				role: form.role,
-			},
+		const payload: { first_name?: string; last_name?: string; password?: string } = {};
+
+		if (form.first_name.trim() !== user.first_name) {
+			payload.first_name = form.first_name.trim();
+		}
+		if (form.last_name.trim() !== user.last_name) {
+			payload.last_name = form.last_name.trim();
+		}
+		if (form.password) {
+			payload.password = form.password;
+		}
+
+		if (Object.keys(payload).length === 0) {
+			onClose();
+			return;
+		}
+
+		updateUser.mutate(
+			{ userId: user._id, payload },
 			{ onSuccess: onClose },
 		);
 	};
@@ -88,7 +85,7 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 				{/* Header */}
 				<div className='flex items-center justify-between px-5 py-4 border-b border-[#1e1e1e]'>
 					<h2 className='text-[15px] font-semibold text-white'>
-						Nuevo usuario
+						Editar usuario
 					</h2>
 					<button
 						onClick={onClose}
@@ -99,25 +96,16 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 				</div>
 
 				<form onSubmit={handleSubmit} className='p-5 space-y-4'>
-					{/* Username */}
+					{/* Username (readonly) */}
 					<div>
 						<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
-							Nombre de usuario
+							Usuario
 						</label>
 						<input
-							name='username'
-							value={form.username}
-							onChange={handleChange}
-							placeholder='Ej: maria'
-							autoFocus
-							autoComplete='off'
-							className={inputClass(!!errors.username)}
+							value={user.username}
+							disabled
+							className='w-full bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg px-3 py-2.5 text-[13px] text-[#666] cursor-not-allowed'
 						/>
-						{errors.username && (
-							<p className='text-[11px] font-mono text-red-500 mt-1'>
-								{errors.username}
-							</p>
-						)}
 					</div>
 
 					{/* Nombre */}
@@ -130,6 +118,7 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 							value={form.first_name}
 							onChange={handleChange}
 							placeholder='Ej: María'
+							autoFocus
 							autoComplete='off'
 							className={inputClass(!!errors.first_name)}
 						/>
@@ -160,33 +149,10 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 						)}
 					</div>
 
-					{/* Rol */}
-					<div>
-						<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
-							Rol
-						</label>
-						<div className='grid grid-cols-2 gap-2'>
-							{ROLES.map((r) => (
-								<button
-									key={r.value}
-									type='button'
-									onClick={() => handleRoleChange(r.value)}
-									className={`py-2.5 rounded-lg border text-[12px] font-mono transition-all ${
-										form.role === r.value
-											? r.activeClass
-											: 'bg-[#141414] border-[#2a2a2a] text-[#666] hover:border-[#444]'
-									}`}
-								>
-									{r.label}
-								</button>
-							))}
-						</div>
-					</div>
-
 					{/* Contraseña */}
 					<div>
 						<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
-							Contraseña
+							Nueva contraseña
 						</label>
 						<div className='relative'>
 							<input
@@ -194,7 +160,7 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 								type={showPassword ? 'text' : 'password'}
 								value={form.password}
 								onChange={handleChange}
-								placeholder='Mínimo 6 caracteres'
+								placeholder='Dejar vacío para no cambiar'
 								autoComplete='new-password'
 								className={inputClass(!!errors.password)}
 							/>
@@ -214,30 +180,32 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 					</div>
 
 					{/* Confirmar contraseña */}
-					<div>
-						<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
-							Confirmar contraseña
-						</label>
-						<input
-							name='confirmPassword'
-							type={showPassword ? 'text' : 'password'}
-							value={form.confirmPassword}
-							onChange={handleChange}
-							placeholder='Repetí la contraseña'
-							autoComplete='new-password'
-							className={inputClass(!!errors.confirmPassword)}
-						/>
-						{errors.confirmPassword && (
-							<p className='text-[11px] font-mono text-red-500 mt-1'>
-								{errors.confirmPassword}
-							</p>
-						)}
-					</div>
+					{form.password && (
+						<div>
+							<label className='block text-[11px] font-mono text-[#555] uppercase tracking-widest mb-1.5'>
+								Confirmar contraseña
+							</label>
+							<input
+								name='confirmPassword'
+								type={showPassword ? 'text' : 'password'}
+								value={form.confirmPassword}
+								onChange={handleChange}
+								placeholder='Repetí la contraseña'
+								autoComplete='new-password'
+								className={inputClass(!!errors.confirmPassword)}
+							/>
+							{errors.confirmPassword && (
+								<p className='text-[11px] font-mono text-red-500 mt-1'>
+									{errors.confirmPassword}
+								</p>
+							)}
+						</div>
+					)}
 
 					{/* Error API */}
-					{createUser.isError && (
+					{updateUser.isError && (
 						<p className='text-[12px] font-mono text-red-500'>
-							{getErrorMessage(createUser.error)}
+							{getErrorMessage(updateUser.error)}
 						</p>
 					)}
 
@@ -252,10 +220,10 @@ export const UserFormModal = ({ onClose }: IUserFormModalProps) => {
 						</button>
 						<button
 							type='submit'
-							disabled={createUser.isPending}
+							disabled={updateUser.isPending}
 							className='flex-1 py-2.5 bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed text-black text-[13px] font-semibold rounded-lg transition-colors'
 						>
-							{createUser.isPending ? 'Creando...' : 'Crear usuario'}
+							{updateUser.isPending ? 'Guardando...' : 'Guardar'}
 						</button>
 					</div>
 				</form>
@@ -270,20 +238,3 @@ const inputClass = (hasError: boolean) =>
 			? 'border-red-800 focus:border-red-600'
 			: 'border-[#2a2a2a] focus:border-green-700'
 	}`;
-
-const ROLES: {
-	value: TUserRole;
-	label: string;
-	activeClass: string;
-}[] = [
-	{
-		value: 'cashier',
-		label: 'Cajero',
-		activeClass: 'bg-[#0f1f12] border-green-700 text-green-400',
-	},
-	{
-		value: 'admin',
-		label: 'Admin',
-		activeClass: 'bg-[#0f1525] border-blue-700 text-blue-400',
-	},
-];

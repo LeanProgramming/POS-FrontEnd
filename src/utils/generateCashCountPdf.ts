@@ -38,7 +38,7 @@ export const generateCashCountPdf = (summary: IDailySummary) => {
 	// Info general
 	addSection('Información General', [
 		{ label: 'Caja:', value: summary.register_name },
-		{ label: 'Cajero:', value: summary.cashier_id },
+		{ label: 'Cajero:', value: summary.cashier_name },
 		{ label: 'Apertura:', value: formatDate(summary.opened_at) },
 		{
 			label: 'Cierre:',

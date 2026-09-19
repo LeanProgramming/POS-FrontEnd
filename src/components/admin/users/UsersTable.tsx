@@ -3,15 +3,16 @@ import { UserRow } from './UserRow';
 
 interface IUserTableProps {
 	users: IUser[];
+	onEdit: (user: IUser) => void;
 	onDelete: (user: IUser) => void;
 }
 
-export const UsersTable = ({ users, onDelete }: IUserTableProps) => {
+export const UsersTable = ({ users, onEdit, onDelete }: IUserTableProps) => {
 	return (
 		<div className='bg-[#111] border border-[#1e1e1e] rounded-lg overflow-hidden'>
 			{/* Header */}
 			<div className='grid grid-cols-[1fr_120px_80px] gap-3 px-4 py-3 bg-[#161616] border-b border-[#222]'>
-				{['Usuario', 'Rol', ''].map((col) => (
+				{['Nombre', 'Rol', ''].map((col) => (
 					<span
 						key={col}
 						className='text-[11px] font-mono text-[#555] uppercase tracking-wider'
@@ -24,7 +25,7 @@ export const UsersTable = ({ users, onDelete }: IUserTableProps) => {
 			{/* Rows */}
 			<div className='divide-y divide-[#1a1a1a]'>
 				{users.map((user) => (
-					<UserRow key={user._id} user={user} onDelete={onDelete} />
+					<UserRow key={user._id} user={user} onEdit={onEdit} onDelete={onDelete} />
 				))}
 			</div>
 		</div>

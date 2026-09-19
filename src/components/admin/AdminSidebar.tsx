@@ -226,34 +226,32 @@ const NAV_GROUPS: INavGroup[] = [
 				icon: icons.cash,
 				roles: ['admin', 'cashier'],
 			},
-		{
-			label: 'Movimientos',
-			path: '/cash/movements',
-			icon: icons.movements,
-			roles: ['admin', 'cashier'],
-			requiresOpen: true,
-		},
-		{
-			label: 'Arqueo de caja',
-			path: '/cash/cash-count',
-			icon: icons.cash_count,
-			roles: ['admin', 'cashier'],
-			requiresOpen: true,
-		},
-		{
-			label: 'Historial',
-			path: '/cash/history',
-			icon: icons.history,
-			roles: ['admin', 'cashier'],
-			requiresOpen: true,
-		},
-		{
-			label: 'Corte Z',
-			path: '/cash/daily-summary',
-			icon: icons.daily_summary,
-			roles: ['admin'],
-			requiresOpen: true,
-		},
+			{
+				label: 'Movimientos',
+				path: '/cash/movements',
+				icon: icons.movements,
+				roles: ['admin', 'cashier'],
+				requiresOpen: true,
+			},
+			{
+				label: 'Arqueo de caja',
+				path: '/cash/cash-count',
+				icon: icons.cash_count,
+				roles: ['admin', 'cashier'],
+				requiresOpen: true,
+			},
+			{
+				label: 'Historial',
+				path: '/cash/history',
+				icon: icons.history,
+				roles: ['admin'],
+			},
+			{
+				label: 'Corte Z',
+				path: '/cash/daily-summary',
+				icon: icons.daily_summary,
+				roles: ['admin'],
+			},
 		],
 	},
 	{
@@ -275,8 +273,11 @@ export const AdminSidebar = () => {
 	const { data: cashStatus } = useGetCashStatus();
 	const role = user?.role ?? 'cashier';
 	const isCashOpen = cashStatus?.is_open ?? false;
-	const initials = user?.username
-		? user.username.slice(0, 2).toUpperCase()
+	const fullName = user?.first_name && user?.last_name
+		? `${user.first_name} ${user.last_name}`
+		: user?.username ?? '??';
+	const initials = user?.first_name && user?.last_name
+		? `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
 		: '??';
 
 	return (
@@ -285,8 +286,7 @@ export const AdminSidebar = () => {
 				{NAV_GROUPS.filter((g) => g.roles.includes(role)).map((group) => {
 					const visibleItems = group.items.filter(
 						(item) =>
-							item.roles.includes(role) &&
-							(!item.requiresOpen || isCashOpen),
+							item.roles.includes(role) && (!item.requiresOpen || isCashOpen),
 					);
 
 					if (visibleItems.length === 0) return null;
@@ -314,7 +314,7 @@ export const AdminSidebar = () => {
 					</div>
 					<div className='min-w-0'>
 						<p className='text-[12px] text-[#aaa] truncate font-medium'>
-							{user?.username}
+							{fullName}
 						</p>
 						<p className='text-[10px] font-mono text-[#444] capitalize'>
 							{user?.role}

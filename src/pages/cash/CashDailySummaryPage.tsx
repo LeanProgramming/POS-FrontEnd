@@ -96,7 +96,7 @@ const CashDailySummaryPage = () => {
 				<div className='bg-[#161616] border border-[#1e1e1e] rounded-lg p-4'>
 					<p className='text-[12px] font-mono text-[#555] mb-1'>Cajero</p>
 					<p className='text-[14px] font-mono font-semibold text-white'>
-						{summary.cashier_id}
+						{summary.cashier_name}
 					</p>
 				</div>
 			</div>

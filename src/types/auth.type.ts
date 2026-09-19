@@ -14,6 +14,8 @@ export interface IAuthUser {
 	_id: string;
 	username: string;
 	role: TUserRole;
+	first_name: string;
+	last_name: string;
 }
 
 export interface IAuthResponse {

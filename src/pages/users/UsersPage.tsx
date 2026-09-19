@@ -6,10 +6,12 @@ import { TableError } from '../../components/admin/users/TableError';
 import { TableEmpty } from '../../components/admin/users/TableEmpty';
 import { UsersTable } from '../../components/admin/users/UsersTable';
 import { UserFormModal } from '../../components/admin/users/UserFormModal';
+import { UserEditModal } from '../../components/admin/users/UserEditModal';
 import { DeleteConfirmModal } from '../../components/admin/products/DeleteConfirmModal';
 
 const UsersPage = () => {
 	const [showForm, setShowForm] = useState(false);
+	const [editingUser, setEditingUser] = useState<IUser | null>(null);
 	const [deletingUser, setDeletingUser] = useState<IUser | null>(null);
 
 	const { data: users = [], isLoading, isError } = useGetUsers();
@@ -63,7 +65,7 @@ const UsersPage = () => {
 			) : users.length === 0 ? (
 				<TableEmpty />
 			) : (
-				<UsersTable users={users} onDelete={setDeletingUser} />
+				<UsersTable users={users} onEdit={setEditingUser} onDelete={setDeletingUser} />
 			)}
 
 			{/* Contador */}
@@ -75,6 +77,9 @@ const UsersPage = () => {
 
 			{/* Modal crear */}
 			{showForm && <UserFormModal onClose={() => setShowForm(false)} />}
+
+			{/* Modal editar */}
+			{editingUser && <UserEditModal user={editingUser} onClose={() => setEditingUser(null)} />}
 
 			{/* Modal eliminar */}
 			{deletingUser && (

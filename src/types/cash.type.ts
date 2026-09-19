@@ -101,6 +101,7 @@ export interface IDailySummary {
 	session_id: string;
 	register_name: string;
 	cashier_id: string;
+	cashier_name: string;
 	total_sales: number;
 	total_refunds: number;
 	net_sales: number;

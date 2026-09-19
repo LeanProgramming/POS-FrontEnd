@@ -87,7 +87,7 @@ export const POSTopbar = ({ user, cashStatus, onLogout }: IPOSTopbarProps) => {
 				)}
 
 				<span className='text-[12px] font-mono text-green-500'>
-					Usuario: {user?.username}
+					Usuario: {user?.first_name} {user?.last_name}
 				</span>
 				<span className='text-[11px] font-mono text-[#fff] px-2 py-0.5 bg-[#1a1a1a] border border-[#252525] rounded capitalize'>
 					Rol: {user?.role}
