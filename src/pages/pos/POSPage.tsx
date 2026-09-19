@@ -35,7 +35,7 @@ export const POSPage = () => {
 
 	const handleLogout = () => {
 		if (cashStatus?.is_open) {
-			navigate('/cash');
+			navigate('/cash/cash-count');
 			return;
 		}
 		logout();

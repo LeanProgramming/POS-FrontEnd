@@ -116,3 +116,8 @@ export interface IDailySummary {
 	opened_at: string;
 	closed_at: string | null;
 }
+
+export interface ICashSessionDetail {
+	session: ICashSession;
+	movements: ICashMovement[];
+}

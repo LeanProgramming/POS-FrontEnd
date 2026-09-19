@@ -8,6 +8,7 @@ import {
 	getCashBalance,
 	getCashMovements,
 	getCashRegisters,
+	getCashSessionDetail,
 	getCashSessions,
 	getCashStatus,
 	getDailySummary,
@@ -149,5 +150,12 @@ export const useDailySummary = (sessionId: string | null) =>
 	useQuery({
 		queryKey: [...queryKeys.cash.dailySummary(), sessionId],
 		queryFn: () => getDailySummary({ session_id: sessionId! }),
+		enabled: Boolean(sessionId),
+	});
+
+export const useCashSessionDetail = (sessionId: string | null) =>
+	useQuery({
+		queryKey: [...queryKeys.cash.sessionDetail(sessionId ?? ''), sessionId],
+		queryFn: () => getCashSessionDetail({ session_id: sessionId! }),
 		enabled: Boolean(sessionId),
 	});

@@ -144,6 +144,14 @@ export const router = createBrowserRouter([
 				},
 			},
 			{
+				path: 'cash/history/:sessionId',
+				lazy: async () => {
+					const { default: Component } =
+						await import('../pages/cash/CashSessionDetailPage');
+					return { Component };
+				},
+			},
+			{
 				path: 'users',
 				element: (
 					<RequireAdmin>

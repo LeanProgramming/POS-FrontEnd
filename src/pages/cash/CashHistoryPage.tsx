@@ -77,7 +77,7 @@ const CashHistoryPage = () => {
 						data.sessions.map((session) => (
 							<div
 								key={session._id}
-								className='flex items-center justify-between px-4 py-3 hover:bg-[#161616] transition-colors'
+								className='flex items-center justify-between px-4 py-3  transition-colors'
 							>
 								<div className='flex flex-col gap-0.5'>
 									<div className='flex items-center gap-2'>
@@ -96,15 +96,24 @@ const CashHistoryPage = () => {
 											` | Cierre: ${formatDate(session.closed_at)}`}
 									</p>
 								</div>
-								<div className='text-right'>
-									<p className='text-[13px] font-mono text-white'>
-										{formatPrice(session.opening_balance)}
-									</p>
-									{session.closing_balance !== null && (
-										<p className='text-[11px] font-mono text-[#555]'>
-											Cierre: {formatPrice(session.closing_balance)}
+								<div className='flex items-center gap-3'>
+									<div className='text-right'>
+										<p className='text-[13px] font-mono text-white'>
+											{formatPrice(session.opening_balance)}
 										</p>
-									)}
+										{session.closing_balance !== null && (
+											<p className='text-[11px] font-mono text-[#555]'>
+												Cierre: {formatPrice(session.closing_balance)}
+											</p>
+										)}
+									</div>
+
+									<button
+										className='px-3 py-1.5 text-[12px] font-mono rounded-lg border transition-colors bg-[#252525] border-[#111] text-[#666] hover:text-[#888]'
+										onClick={() => navigate(`/cash/history/${session._id}`)}
+									>
+										Ver detalle
+									</button>
 								</div>
 							</div>
 						))

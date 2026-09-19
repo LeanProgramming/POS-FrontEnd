@@ -3,12 +3,31 @@ import { useDailySummary, useGetCashStatus } from '../../queries/cash.queries';
 import { formatPrice } from '../../utils/formatPrice';
 import { formatDate } from '../../utils/formatDate';
 import { MovementsSkeleton } from '../../components/admin/cash/MovementsSkeleton';
+import { useState } from 'react';
+import { exportDailySummaryCsv } from '../../services/cash.service';
+import { generateCashCountPdf } from '../../utils/generateCashCountPdf';
 
 const CashDailySummaryPage = () => {
 	const navigate = useNavigate();
 	const { data: cashStatus } = useGetCashStatus();
 	const sessionId = cashStatus?.session?._id ?? null;
 	const { data: summary, isLoading } = useDailySummary(sessionId);
+	const [exporting, setExporting] = useState(false);
+
+	const handleExportCsv = async () => {
+		if (!summary) return;
+		setExporting(true);
+		try {
+			await exportDailySummaryCsv(summary.session_id);
+		} finally {
+			setExporting(false);
+		}
+	};
+
+	const handleExportPdf = () => {
+		if (!summary) return;
+		generateCashCountPdf(summary);
+	};
 
 	if (isLoading) {
 		return (
@@ -41,9 +60,29 @@ const CashDailySummaryPage = () => {
 	return (
 		<div className='flex flex-col gap-6'>
 			{/* Header */}
-			<div>
-				<h1 className='text-xl font-semibold text-white'>Corte Z</h1>
-				<p className='text-[13px] text-[#555] mt-0.5'>Resumen del día</p>
+			<div className='flex justify-between'>
+				<div>
+					<h1 className='text-xl font-semibold text-white'>Corte Z</h1>
+					<p className='text-[13px] text-[#555] mt-0.5'>Resumen del día</p>
+				</div>
+				<div className='flex flex-col items-center gap-2'>
+					<p className='text-[13px] text-white mt-0.5'>Exportar</p>
+					<div className='flex items-center gap-2 ml-auto'>
+						<button
+							onClick={handleExportCsv}
+							disabled={exporting}
+							className='px-3 py-1.5 bg-[#161616] hover:bg-[#1a1a1a] border border-[#252525] hover:border-[#444] text-[12px] font-mono text-[#666] hover:text-white rounded transition-colors disabled:opacity-50'
+						>
+							{exporting ? 'Exportando...' : 'CSV'}
+						</button>
+						<button
+							onClick={handleExportPdf}
+							className='px-3 py-1.5 bg-[#161616] hover:bg-[#1a1a1a] border border-[#252525] hover:border-[#444] text-[12px] font-mono text-[#666] hover:text-white rounded transition-colors'
+						>
+							PDF
+						</button>
+					</div>
+				</div>
 			</div>
 
 			{/* Info general */}

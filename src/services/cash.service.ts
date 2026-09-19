@@ -1,5 +1,6 @@
 import api from '../api/api';
 import { handleApiError } from '../api/errors';
+import { useAuthStore } from '../store/useAuthStore';
 import type {
 	ICashBalance,
 	ICashMovement,
@@ -10,6 +11,7 @@ import type {
 	ICloseCashPayload,
 	IDailySummary,
 	IOpenCashPayload,
+	ICashSessionDetail,
 } from '../types/cash.type';
 
 export const getCashStatus = async (): Promise<ICashStatus> => {
@@ -158,4 +160,37 @@ export const getDailySummary = async (params: {
 	} catch (error) {
 		return handleApiError(error);
 	}
+};
+
+export const getCashSessionDetail = async (params: {
+	session_id: string;
+}): Promise<ICashSessionDetail | undefined> => {
+	try {
+		const res = await api.get<ICashSessionDetail>(
+			`/cash/sessions/${params.session_id}`,
+		);
+		return res.data;
+	} catch (error) {
+		handleApiError(error);
+	}
+};
+
+export const exportDailySummaryCsv = async (
+	sessionId: string,
+): Promise<void> => {
+	const token = useAuthStore.getState().token;
+	const url = `${import.meta.env.VITE_API_URL}/cash/daily-summary/${sessionId}/export?format=csv`;
+
+	const res = await fetch(url, {
+		headers: { Authorization: `Bearer ${token}` },
+	});
+
+	if (!res.ok) throw new Error('Error al exportar CSV');
+
+	const blob = await res.blob();
+	const a = document.createElement('a');
+	a.href = URL.createObjectURL(blob);
+	a.download = `corte_z_${sessionId}.csv`;
+	a.click();
+	URL.revokeObjectURL(a.href);
 };
